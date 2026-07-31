@@ -1,0 +1,3021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Hungry Owl — Menu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Playfair+Display:wght@700;800&family=Baloo+2:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FBF5E6;
+    --cream-2:#F6EDD6;
+    --gold:#F0C24E;
+    --gold-dark:#D9A62E;
+    --ink:#201A10;
+    --line:#C7AD70;
+    --line-soft:#E3D3A3;
+    --white:#FFFCF4;
+    --red:#B0453B;
+    --green:#4C8B5C;
+    --green-dark:#356B41;
+    --page-bg:#EDE3C8;
+    --muted:#8a7c58;
+    --muted-2:#6b6142;
+    --muted-3:#5c5232;
+    --fade-from: rgba(251,245,230,1);
+    --fade-to: rgba(251,245,230,0);
+    --warn-bg:#FBEAE7;
+    --warn-border:#E3B9B2;
+    --warn-text:#8a3b32;
+  }
+  body[data-theme="dark"]{
+    --cream:#211B12;
+    --cream-2:#2A2216;
+    --gold:#E3B24C;
+    --gold-dark:#B4842A;
+    --ink:#F3EAD2;
+    --line:#6b5c38;
+    --line-soft:#463b26;
+    --white:#2A2216;
+    --red:#D3695D;
+    --green:#6FBF80;
+    --green-dark:#4C8B5C;
+    --page-bg:#14110B;
+    --muted:#C9B98A;
+    --muted-2:#B8A978;
+    --muted-3:#D8CBA3;
+    --fade-from: rgba(33,27,18,1);
+    --fade-to: rgba(33,27,18,0);
+    --warn-bg:#3A241F;
+    --warn-border:#6d3a30;
+    --warn-text:#F0B7AC;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--page-bg);
+    color:var(--ink);
+    font-family:'Baloo 2',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    transition:background .2s ease, color .2s ease;
+  }
+  .page-frame{
+    max-width:640px;
+    margin:0 auto;
+    background:var(--cream);
+    border:5px solid var(--ink);
+    border-radius:30px;
+    padding:14px;
+    min-height:100vh;
+  }
+  .page-inner{
+    border:2.5px solid var(--gold-dark);
+    border-radius:22px;
+    padding:20px 18px 120px;
+  }
+  /* ---------- Header ---------- */
+  .header{
+    border:4px solid var(--ink);
+    border-radius:26px;
+    background:linear-gradient(180deg,var(--white),var(--cream-2));
+    padding:20px 18px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    box-shadow:0 5px 0 var(--gold-dark);
+  }
+  .owl{flex:0 0 auto; width:76px; height:76px;}
+  .brand{min-width:0; flex:1 1 auto;}
+  .brand h1{
+    font-family:'Permanent Marker',cursive;
+    font-size:2.4rem;
+    line-height:1;
+    margin:0;
+    letter-spacing:1px;
+    transform:rotate(-1.5deg);
+    color:var(--ink);
+    overflow-wrap:break-word;
+  }
+  .brand p{
+    margin:6px 0 0;
+    font-family:'Baloo 2',sans-serif;
+    font-weight:600;
+    font-size:.78rem;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    color:var(--gold-dark);
+  }
+  /* ---------- Sections ---------- */
+  .section{margin-top:30px;}
+  .section-title-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:16px;
+  }
+  .section-title-row .rule{flex:1;height:2px;background:var(--line-soft);}
+  .pill{
+    background:linear-gradient(180deg,var(--gold),var(--gold-dark));
+    border:2px solid var(--ink);
+    border-radius:999px;
+    padding:7px 22px;
+    font-family:'Playfair Display',serif;
+    font-weight:800;
+    font-size:1.2rem;
+    white-space:nowrap;
+    color:var(--ink);
+  }
+  .item-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 2px;
+    min-height:44px;
+  }
+  .item-name{font-weight:600; font-size:1.05rem;}
+  .dots{
+    flex:1;
+    border-bottom:2.5px dotted var(--line);
+    transform:translateY(-4px);
+    min-width:12px;
+  }
+  .item-price{font-weight:800; font-size:1.1rem; color:var(--ink); font-family:'Playfair Display',serif; flex:0 0 auto;}
+  .item-add-btn{
+    flex:0 0 auto;
+    width:36px; height:36px;
+    border-radius:50%;
+    border:2px solid var(--ink);
+    background:var(--gold);
+    color:var(--ink);
+    font-family:'Baloo 2',sans-serif;
+    font-weight:800;
+    font-size:1.15rem;
+    line-height:1;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .item-qty-stepper{
+    flex:0 0 auto;
+    display:flex; align-items:center; gap:6px;
+    background:var(--white);
+    border:2px solid var(--ink);
+    border-radius:999px;
+    padding:3px 5px;
+  }
+  .item-qty-stepper button{
+    width:32px; height:32px;
+    border-radius:50%;
+    border:none;
+    background:var(--gold);
+    color:var(--ink);
+    font-family:'Baloo 2',sans-serif; font-weight:800; font-size:1.05rem;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .item-qty-stepper .qty-num{
+    min-width:18px; text-align:center; font-weight:700; font-size:.95rem;
+  }
+  .empty-note{
+    font-family:'Baloo 2',sans-serif;
+    font-weight:500;
+    font-style:italic;
+    color:var(--muted);
+    padding:6px 2px 2px;
+  }
+  .footer-art{display:flex; justify-content:center; margin-top:36px; opacity:.95;}
+  /* ---------- Order Here toggle ---------- */
+  .order-here-bar{ display:flex; justify-content:center; margin-top:16px; position:relative; }
+  .order-here-btn{
+    font-family:'Baloo 2',sans-serif; font-weight:800; font-size:1rem;
+    border:3px solid var(--ink); border-radius:999px;
+    padding:12px 24px; cursor:pointer;
+    background:var(--green); color:#fff;
+    box-shadow:0 4px 0 var(--green-dark);
+    display:flex; align-items:center; gap:8px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .order-here-btn:active{ transform:translateY(3px); box-shadow:none; }
+  .order-here-btn.active{ background:var(--ink); color:var(--cream); box-shadow:0 4px 0 #000; }
+  .order-here-btn{
+    font-size:1.12rem;
+    padding:14px 30px;
+    position:relative;
+    animation: owlBounce 2.4s ease-in-out infinite;
+  }
+  .order-here-btn.active{ animation:none; }
+  .order-here-bar::before{
+    content:"";
+    position:absolute;
+    left:50%; top:50%;
+    width:220px; height:70px;
+    transform:translate(-50%,-50%);
+    border-radius:999px;
+    background:radial-gradient(closest-side, rgba(76,139,92,.5), rgba(76,139,92,0));
+    animation: owlGlow 2.4s ease-in-out infinite;
+    pointer-events:none;
+  }
+  .order-here-bar:has(.order-here-btn.active)::before{ display:none; }
+  @keyframes owlBounce{
+    0%, 100%{ transform:translateY(0); }
+    50%{ transform:translateY(-4px); }
+  }
+  @keyframes owlGlow{
+    0%, 100%{ opacity:.5; }
+    50%{ opacity:1; }
+  }
+  /* ---------- Category quick-nav ---------- */
+  .cat-nav{
+    position:sticky; top:0; z-index:30;
+    display:flex; gap:8px; overflow-x:auto;
+    padding:10px 2px; margin-top:14px;
+    background:linear-gradient(180deg,var(--fade-from) 70%, var(--fade-to));
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+  }
+  .cat-nav::-webkit-scrollbar{ display:none; }
+  .cat-pill{
+    flex:0 0 auto; font-family:'Baloo 2',sans-serif; font-weight:700; font-size:.88rem;
+    border:2px solid var(--ink); border-radius:999px; padding:9px 16px;
+    background:var(--white); color:var(--ink); cursor:pointer; white-space:nowrap;
+    min-height:38px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .cat-pill.active{ background:var(--gold); }
+  /* ---------- Floating controls ---------- */
+  .fab-row{
+    position:fixed;
+    right:14px;
+    bottom:14px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    z-index:40;
+    align-items:flex-end;
+  }
+  .fab{
+    border:3px solid var(--ink);
+    border-radius:999px;
+    padding:12px 18px;
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:.95rem;
+    cursor:pointer;
+    box-shadow:0 4px 0 rgba(0,0,0,.35);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    min-height:44px;
+    color:var(--ink);
+    -webkit-tap-highlight-color:transparent;
+    white-space:nowrap;
+  }
+  .fab-gold{background:var(--gold);}
+  .fab-white{background:var(--white);}
+  .fab:active{transform:translateY(3px); box-shadow:none;}
+  .fab-label{display:inline;}
+  /* ---------- Modal ---------- */
+  .modal-backdrop{
+    position:fixed; inset:0;
+    background:rgba(20,16,8,.55);
+    display:none;
+    align-items:flex-end;
+    justify-content:center;
+    z-index:100;
+  }
+  .modal-backdrop.open{display:flex;}
+  @media(min-width:560px){ .modal-backdrop{align-items:center;} }
+  .modal{
+    background:var(--cream);
+    width:100%;
+    max-width:560px;
+    max-height:88vh;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    border:3px solid var(--ink);
+    border-radius:22px 22px 0 0;
+    padding:20px 18px calc(26px + env(safe-area-inset-bottom));
+    color:var(--ink);
+  }
+  @media(min-width:560px){ .modal{border-radius:22px;} }
+  .modal h2{
+    font-family:'Baloo 2',sans-serif;
+    font-size:1.35rem;
+    margin:0 0 14px;
+    color:var(--ink);
+  }
+  .modal-close{
+    position:sticky; top:0; float:right;
+    background:var(--ink); color:var(--cream);
+    border:none; border-radius:50%;
+    width:36px; height:36px;
+    font-size:1.05rem; cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .field{margin-bottom:12px;}
+  .field label{
+    display:block; font-family:'Baloo 2',sans-serif; font-weight:600;
+    font-size:.85rem; margin-bottom:4px; color:var(--muted-3);
+  }
+  .field input{
+    width:100%; padding:12px; border-radius:10px;
+    border:2px solid var(--line-soft); font-family:'Baloo 2',sans-serif;
+    font-size:16px; background:var(--white); color:var(--ink);
+  }
+  .field input:focus{outline:2px solid var(--gold-dark); border-color:var(--gold-dark);}
+  .brand-phone{
+    display:inline-flex; align-items:center; gap:5px;
+    margin-top:8px; font-family:'Baloo 2',sans-serif; font-weight:700;
+    font-size:.85rem; color:var(--ink); text-decoration:none;
+    background:var(--gold); border:2px solid var(--ink); border-radius:999px;
+    padding:4px 12px 4px 10px;
+  }
+  .logo-emoji{
+    flex:0 0 auto; width:76px; height:76px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:2.4rem; background:var(--white); border:3px solid var(--ink);
+  }
+  .logo-image{
+    flex:0 0 auto; width:76px; height:76px; border-radius:50%;
+    object-fit:cover; background:var(--white); border:3px solid var(--ink);
+  }
+  .theme-fab{ font-size:1.1rem; }
+  .field-row{ display:flex; gap:8px; }
+  .field-row .field{ flex:1; min-width:0; }
+  .btn{
+    font-family:'Baloo 2',sans-serif; font-weight:700; font-size:.95rem;
+    border:2px solid var(--ink); border-radius:12px; padding:12px 16px;
+    cursor:pointer; background:var(--gold); color:var(--ink);
+    min-height:44px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-secondary{background:var(--white);}
+  .btn-danger{background:var(--red); color:#fff; border-color:#6d251f;}
+  .btn-small{padding:9px 14px; font-size:.85rem; min-height:38px;}
+  .btn-block{width:100%;}
+  /* logo uploader */
+  .logo-upload-row{
+    display:flex; align-items:center; gap:12px; margin-bottom:12px;
+  }
+  .logo-preview{
+    flex:0 0 auto; width:60px; height:60px; border-radius:50%;
+    border:2px solid var(--line-soft); background:var(--white);
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden; font-size:1.8rem;
+  }
+  .logo-preview img{width:100%; height:100%; object-fit:cover;}
+  .logo-upload-actions{flex:1; display:flex; flex-direction:column; gap:6px;}
+  .file-input-btn{
+    display:inline-flex; align-items:center; justify-content:center;
+    font-family:'Baloo 2',sans-serif; font-weight:700; font-size:.85rem;
+    border:2px dashed var(--line); border-radius:10px; padding:9px 12px;
+    cursor:pointer; color:var(--gold-dark); background:transparent;
+    min-height:38px;
+  }
+  .file-input-btn input[type=file]{display:none;}
+  /* admin */
+  .admin-section-card{
+    background:var(--white); border:2px solid var(--line-soft);
+    border-radius:16px; padding:14px; margin-bottom:16px;
+  }
+  .admin-section-head{
+    display:flex; align-items:center; gap:8px; margin-bottom:10px;
+  }
+  .admin-section-head input{flex:1; min-width:0; color:var(--ink); font-size:16px;}
+  .admin-item-row{
+    display:flex; align-items:center; gap:6px; margin-bottom:8px;
+  }
+  .admin-item-row input[type=text]{flex:2; min-width:0; color:var(--ink); font-size:16px;}
+  .admin-item-row input[type=number]{flex:1; min-width:0; color:var(--ink); font-size:16px;}
+  .icon-btn{
+    border:2px solid var(--ink); background:var(--white); color:var(--ink); border-radius:8px;
+    width:36px; height:36px; flex:0 0 auto; cursor:pointer; font-size:.9rem;
+    display:flex; align-items:center; justify-content:center;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .icon-btn.danger{background:var(--red); color:#fff; border-color:#6d251f;}
+  .icon-btn.danger.confirming{background:#7a1f18;}
+  .icon-btn.ghost{background:transparent; border-color:var(--line-soft);}
+  .icon-btn:disabled{opacity:.3; cursor:default;}
+  .drag-handle{
+    flex:0 0 auto;
+    width:30px; height:36px;
+    display:flex; align-items:center; justify-content:center;
+    cursor:grab;
+    touch-action:none;
+    color:var(--gold-dark);
+    font-size:1.2rem;
+    user-select:none;
+    -webkit-user-select:none;
+  }
+  .drag-handle:active{ cursor:grabbing; }
+  .admin-section-card.dragging-item{
+    opacity:.92;
+    box-shadow:0 10px 22px rgba(32,26,16,.28);
+    background:var(--cream-2);
+  }
+  .admin-item-row.dragging-item{
+    opacity:.92;
+    box-shadow:0 6px 14px rgba(32,26,16,.22);
+    background:var(--cream-2);
+    border-radius:10px;
+  }
+  .drag-placeholder{
+    border:2px dashed var(--line);
+    border-radius:14px;
+    margin-bottom:16px;
+    background:rgba(199,173,112,.12);
+  }
+  .drag-placeholder.item-placeholder{
+    border-radius:10px;
+    margin-bottom:8px;
+  }
+  .add-item-btn{
+    font-family:'Baloo 2',sans-serif; font-weight:600; font-size:.85rem;
+    background:none; border:2px dashed var(--line); border-radius:10px;
+    padding:10px; width:100%; cursor:pointer; color:var(--gold-dark);
+    min-height:40px;
+  }
+  .add-section-row{
+    display:flex; gap:8px; margin-bottom:16px;
+  }
+  .add-section-row input{flex:1; min-width:0; color:var(--ink); font-size:16px;}
+  .toolbar{display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;}
+  .toast{
+    position:fixed; top:16px; left:50%; transform:translateX(-50%);
+    background:var(--ink); color:var(--cream); font-family:'Baloo 2',sans-serif;
+    font-weight:600; padding:10px 18px; border-radius:999px; z-index:200;
+    opacity:0; transition:opacity .25s ease; pointer-events:none; font-size:.9rem;
+    max-width:85vw; text-align:center;
+  }
+  .toast.show{opacity:1;}
+  #qrBox{display:flex; justify-content:center; padding:14px; background:#fff; border-radius:14px; border:2px solid var(--line-soft);}
+  .url-box{
+    font-family:monospace; font-size:.78rem; word-break:break-all;
+    background:var(--white); color:var(--ink); border:2px solid var(--line-soft); border-radius:10px;
+    padding:10px; margin-top:10px;
+  }
+  .hint{font-size:.85rem; color:var(--muted-2); line-height:1.5; margin-top:10px;}
+  .hint.warn{color:var(--warn-text); background:var(--warn-bg); border:1px solid var(--warn-border); border-radius:10px; padding:10px;}
+  .fab-cart{position:relative;}
+  .cart-badge{
+    position:absolute; top:-8px; right:-8px;
+    background:var(--red); color:#fff;
+    border:2px solid var(--ink); border-radius:999px;
+    font-size:.72rem; font-weight:800; min-width:20px; height:20px;
+    display:flex; align-items:center; justify-content:center; padding:0 4px;
+  }
+  .order-row{
+    display:flex; align-items:center; gap:10px;
+    background:var(--white); border:2px solid var(--line-soft); border-radius:12px;
+    padding:10px 12px; margin-bottom:8px;
+  }
+  .order-row .oname{flex:1; font-weight:700; color:var(--ink); min-width:0;}
+  .order-row .oprice{font-weight:700; color:var(--muted-2); font-size:.85rem; flex:0 0 auto;}
+  .order-total-row{
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:'Baloo 2',sans-serif; font-weight:800; font-size:1.2rem;
+    padding:14px 4px 6px; border-top:2px dashed var(--line-soft); margin-top:8px;
+    color:var(--ink);
+  }
+  .empty-cart{text-align:center; padding:30px 10px; color:var(--muted); font-style:italic;}
+  #orderCanvasPreview{width:100%; border-radius:12px; border:2px solid var(--line-soft); margin:12px 0; display:block;}
+  .loading{
+    text-align:center; padding:40px; font-family:'Baloo 2',sans-serif; color:var(--muted);
+  }
+  .pin-dots{display:flex; gap:10px; justify-content:center; margin:16px 0;}
+  .pin-dots span{width:14px; height:14px; border-radius:50%; border:2px solid var(--ink); background:var(--white);}
+  .pin-dots span.filled{background:var(--ink);}
+  .keypad{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; max-width:280px; margin:0 auto;}
+  .keypad button{
+    font-family:'Baloo 2',sans-serif; font-weight:700; font-size:1.2rem;
+    padding:18px 0; border-radius:12px; border:2px solid var(--ink); background:var(--white); color:var(--ink); cursor:pointer;
+    min-height:52px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .keypad button:active{background:var(--cream-2);}
+  /* ---------- Mobile-specific tightening ---------- */
+  @media(max-width:480px){
+    .page-inner{ padding:16px 12px 130px; }
+    .header{ padding:16px 14px; gap:10px; }
+    .owl, .logo-emoji, .logo-image{ width:60px; height:60px; }
+    .brand h1{ font-size:1.9rem; }
+    .fab{ padding:12px; border-radius:50%; width:48px; height:48px; }
+    .fab-label{ display:none; }
+    .fab-cart{ width:auto; padding:12px 16px; border-radius:999px; }
+    .fab-cart .fab-label{ display:inline; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-frame">
+  <div class="page-inner">
+    <div class="header">
+      <div id="logoArea">
+        <svg class="owl" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="50" cy="30" rx="26" ry="14" fill="#fff" stroke="#201A10" stroke-width="3"/>
+          <path d="M28 24 Q50 6 72 24" fill="#fff" stroke="#201A10" stroke-width="3"/>
+          <ellipse cx="50" cy="58" rx="30" ry="34" fill="#5B5A63" stroke="#201A10" stroke-width="3"/>
+          <circle cx="38" cy="52" r="11" fill="#fff" stroke="#201A10" stroke-width="3"/>
+          <circle cx="62" cy="52" r="11" fill="#fff" stroke="#201A10" stroke-width="3"/>
+          <circle cx="38" cy="52" r="4.5" fill="#201A10"/>
+          <circle cx="62" cy="52" r="4.5" fill="#201A10"/>
+          <path d="M50 58 L45 66 L55 66 Z" fill="#F0C24E" stroke="#201A10" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="brand">
+        <h1 id="brandName">Hungry Owl</h1>
+        <p id="brandTagline">Chai · Snacks · Sandwiches</p>
+        <a href="#" id="brandPhone" class="brand-phone" style="display:none;">📞 <span id="brandPhoneNum"></span></a>
+      </div>
+    </div>
+
+    <div class="order-here-bar">
+      <button class="order-here-btn" id="orderHereBtn">🍽️ Order Here</button>
+    </div>
+
+    <div class="cat-nav" id="catNav"></div>
+
+    <div id="menuArea">
+      <div class="loading">Loading menu…</div>
+    </div>
+
+    <div class="footer-art">
+      <svg width="220" height="90" viewBox="0 0 220 90" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 70 L55 30 L100 70 Z" fill="#F3D9A6" stroke="#201A10" stroke-width="3" stroke-linejoin="round"/>
+        <rect x="14" y="60" width="82" height="8" fill="#8BAA5C" stroke="#201A10" stroke-width="2"/>
+        <path d="M85 30 Q120 20 120 45 L120 78 Q120 84 114 84 L92 84 Q86 84 86 78 Z" fill="#8B5A2B" stroke="#201A10" stroke-width="3"/>
+        <path d="M120 45 Q136 45 132 58 Q128 68 118 62" fill="none" stroke="#201A10" stroke-width="3"/>
+        <path d="M96 24 Q100 14 96 6" stroke="#B8A98A" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M108 24 Q112 14 108 6" stroke="#B8A98A" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <ellipse cx="165" cy="66" rx="42" ry="16" fill="#fff" stroke="#201A10" stroke-width="3"/>
+        <ellipse cx="150" cy="64" rx="12" ry="10" fill="#F0C24E" stroke="#201A10" stroke-width="2.5"/>
+        <ellipse cx="182" cy="64" rx="12" ry="10" fill="#F0C24E" stroke="#201A10" stroke-width="2.5"/>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<div class="fab-row">
+  <button class="fab fab-gold fab-cart" id="cartFab" title="View your order" style="display:none;">
+    🛒 <span class="fab-label">My Order</span> <span class="cart-badge" id="cartBadge">0</span>
+  </button>
+  <button class="fab fab-white theme-fab" id="themeFab" title="Toggle dark mode">🌙<span class="fab-label"> Dark</span></button>
+  <button class="fab fab-white" id="downloadMenuFab" title="Download menu">⬇<span class="fab-label"> Download Menu</span></button>
+  <button class="fab fab-white" id="qrFab" title="Show QR code">▦<span class="fab-label"> QR Code</span></button>
+  <button class="fab fab-white" id="adminFab" title="Manage menu">✎<span class="fab-label"> Manage Menu</span></button>
+</div>
+
+<!-- PIN MODAL -->
+<div class="modal-backdrop" id="pinBackdrop">
+  <div class="modal">
+    <button class="modal-close" id="pinClose">✕</button>
+    <h2>Enter staff PIN</h2>
+    <div class="pin-dots" id="pinDots"></div>
+    <div class="keypad" id="pinKeypad"></div>
+  </div>
+</div>
+
+<!-- ADMIN MODAL -->
+<div class="modal-backdrop" id="adminBackdrop">
+  <div class="modal">
+    <button class="modal-close" id="adminClose">✕</button>
+    <h2>Manage Menu</h2>
+    <div class="toolbar">
+      <button class="btn btn-danger btn-small" id="resetBtn">Reset to Default</button>
+    </div>
+
+    <div class="admin-section-card">
+      <div style="font-family:'Baloo 2',sans-serif; font-weight:700; font-size:1.05rem; margin-bottom:8px;">🏷️ Shop Branding</div>
+
+      <div class="logo-upload-row">
+        <div class="logo-preview" id="logoPreview">🦉</div>
+        <div class="logo-upload-actions">
+          <label class="file-input-btn">
+            📷 Upload logo image
+            <input type="file" id="logoFileInput" accept="image/*">
+          </label>
+          <button class="btn btn-secondary btn-small" id="removeLogoBtn" style="display:none;">Remove uploaded logo</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Shop Name</label>
+        <input type="text" id="cfgBrandName" placeholder="e.g. Hungry Owl">
+      </div>
+      <div class="field">
+        <label>Tagline</label>
+        <input type="text" id="cfgTagline" placeholder="e.g. Chai · Snacks · Sandwiches">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Logo Emoji (used if no image is uploaded)</label>
+          <input type="text" id="cfgLogoEmoji" placeholder="e.g. 🦉 🍔 ☕" maxlength="4">
+        </div>
+        <div class="field">
+          <label>Phone Number (leave blank to hide)</label>
+          <input type="text" id="cfgPhone" placeholder="e.g. +91 98765 43210">
+        </div>
+      </div>
+      <button class="btn btn-small" id="saveBrandBtn">Save Branding</button>
+      <p class="hint" id="logoHint" style="margin-top:10px;"></p>
+    </div>
+
+    <div class="admin-section-card">
+      <div style="font-family:'Baloo 2',sans-serif; font-weight:700; font-size:1.05rem; margin-bottom:8px;">📲 Telegram Order Delivery</div>
+      <p class="hint" style="margin-top:0;">Customers tap "Send Order" and it's delivered straight to your Telegram automatically. To set this up: message <strong>@BotFather</strong> on Telegram, create a bot, and paste its token below. Then message <strong>@userinfobot</strong> (or add your bot to a group) to get your Chat ID.</p>
+      <div class="field">
+        <label>Bot Token</label>
+        <input type="text" id="tgToken" placeholder="123456789:AAExampleTokenHere">
+      </div>
+      <div class="field">
+        <label>Chat ID</label>
+        <input type="text" id="tgChatId" placeholder="e.g. 987654321">
+      </div>
+      <button class="btn btn-small" id="saveTgBtn">Save Telegram Settings</button>
+      <p class="hint warn" style="margin-top:12px;">⚠️ This page has no private server, so this token is stored in shared, publicly-readable data and visible to anyone who inspects the page. Create a <strong>dedicated bot just for this menu</strong> — never reuse a token from a bot used elsewhere. Worst case someone abuses it to spam messages to this one chat; it can't access anything beyond that.</p>
+      <p class="hint">If you'd rather not expose a token at all, leave this blank — "Send Order" will instead let customers share the order image straight from their phone's share sheet (Telegram, WhatsApp, etc.), or download it if that's unavailable.</p>
+    </div>
+
+    <p class="hint" style="margin-top:0;">Drag the <strong>⠿</strong> handle to reorder categories, or reorder items inside a category. Changes save automatically.</p>
+    <div class="add-section-row">
+      <input type="text" id="newSectionInput" placeholder="New section name (e.g. Cold Beverages)">
+      <button class="btn btn-small" id="addSectionBtn">+ Add Section</button>
+    </div>
+    <div id="adminSections"></div>
+  </div>
+</div>
+
+<!-- CART / ORDER MODAL -->
+<div class="modal-backdrop" id="cartBackdrop">
+  <div class="modal">
+    <button class="modal-close" id="cartClose">✕</button>
+    <h2>Your Order</h2>
+    <div id="cartItems"></div>
+    <div class="order-total-row" id="cartTotalRow" style="display:none;">
+      <span>Total</span><span id="cartTotal">₹0</span>
+    </div>
+    <div class="field" style="margin-top:16px;">
+      <label>Your Name * <span style="font-weight:400; color:var(--muted);">(and table number, if you have one)</span></label>
+      <input type="text" id="orderNote" placeholder="e.g. Riya, Table 4" required>
+    </div>
+    <canvas id="orderCanvas" style="display:none;"></canvas>
+    <img id="orderCanvasPreview" style="display:none;">
+    <button class="btn btn-block" id="sendOrderBtn" style="margin-top:8px;">📤 Send Order</button>
+    <p class="hint" id="sendOrderHint"></p>
+    <div id="shareFallbackActions" style="display:none; gap:8px; margin-top:10px;">
+      <a class="btn btn-secondary btn-small" id="openWhatsappBtn" target="_blank" rel="noopener" style="text-decoration:none; text-align:center; flex:1;">💬 Open WhatsApp</a>
+      <a class="btn btn-secondary btn-small" id="openTelegramBtn" target="_blank" rel="noopener" style="text-decoration:none; text-align:center; flex:1;">✈️ Open Telegram</a>
+    </div>
+  </div>
+</div>
+
+<!-- QR MODAL -->
+<div class="modal-backdrop" id="qrBackdrop">
+  <div class="modal">
+    <button class="modal-close" id="qrClose">✕</button>
+    <h2>Scan to view menu</h2>
+    <div id="qrBox"></div>
+    <div class="url-box" id="qrUrl"></div>
+    <p class="hint" id="qrHint"></p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =====================================================================
+   Bundled offline QR encoder — Kazuhiko Arase, MIT license.
+   Included inline (not loaded from a CDN) so it always works even
+   inside a locked-down preview sandbox with no network access.
+===================================================================== */
+var QRCodeLib = (function(){
+var QRMode = {
+    MODE_NUMBER :       1 << 0,
+    MODE_ALPHA_NUM :    1 << 1,
+    MODE_8BIT_BYTE :    1 << 2,
+    MODE_KANJI :        1 << 3
+};
+var QRErrorCorrectLevel = {
+	L : 1,
+	M : 0,
+	Q : 3,
+	H : 2
+};
+var QRMaskPattern = {
+	PATTERN000 : 0,
+	PATTERN001 : 1,
+	PATTERN010 : 2,
+	PATTERN011 : 3,
+	PATTERN100 : 4,
+	PATTERN101 : 5,
+	PATTERN110 : 6,
+	PATTERN111 : 7
+};
+var QRMath = {
+
+	glog : function(n) {
+
+		if (n < 1) {
+			throw new Error("glog(" + n + ")");
+		}
+
+		return QRMath.LOG_TABLE[n];
+	},
+
+	gexp : function(n) {
+
+		while (n < 0) {
+			n += 255;
+		}
+
+		while (n >= 256) {
+			n -= 255;
+		}
+
+		return QRMath.EXP_TABLE[n];
+	},
+
+	EXP_TABLE : new Array(256),
+
+	LOG_TABLE : new Array(256)
+
+};
+
+for (var i = 0; i < 8; i++) {
+	QRMath.EXP_TABLE[i] = 1 << i;
+}
+for (var i = 8; i < 256; i++) {
+	QRMath.EXP_TABLE[i] = QRMath.EXP_TABLE[i - 4]
+		^ QRMath.EXP_TABLE[i - 5]
+		^ QRMath.EXP_TABLE[i - 6]
+		^ QRMath.EXP_TABLE[i - 8];
+}
+for (var i = 0; i < 255; i++) {
+	QRMath.LOG_TABLE[QRMath.EXP_TABLE[i] ] = i;
+}
+function QRPolynomial(num, shift) {
+	if (num.length === undefined) {
+		throw new Error(num.length + "/" + shift);
+	}
+
+	var offset = 0;
+
+	while (offset < num.length && num[offset] === 0) {
+		offset++;
+	}
+
+	this.num = new Array(num.length - offset + shift);
+	for (var i = 0; i < num.length - offset; i++) {
+		this.num[i] = num[i + offset];
+	}
+}
+
+QRPolynomial.prototype = {
+
+	get : function(index) {
+		return this.num[index];
+	},
+
+	getLength : function() {
+		return this.num.length;
+	},
+
+	multiply : function(e) {
+
+		var num = new Array(this.getLength() + e.getLength() - 1);
+
+		for (var i = 0; i < this.getLength(); i++) {
+			for (var j = 0; j < e.getLength(); j++) {
+				num[i + j] ^= QRMath.gexp(QRMath.glog(this.get(i) ) + QRMath.glog(e.get(j) ) );
+			}
+		}
+
+		return new QRPolynomial(num, 0);
+	},
+
+	mod : function(e) {
+
+		if (this.getLength() - e.getLength() < 0) {
+			return this;
+		}
+
+		var ratio = QRMath.glog(this.get(0) ) - QRMath.glog(e.get(0) );
+
+		var num = new Array(this.getLength() );
+
+		for (var i = 0; i < this.getLength(); i++) {
+			num[i] = this.get(i);
+		}
+
+		for (var i = 0; i < e.getLength(); i++) {
+			num[i] ^= QRMath.gexp(QRMath.glog(e.get(i) ) + ratio);
+		}
+
+		return new QRPolynomial(num, 0).mod(e);
+	}
+};
+function QRRSBlock(totalCount, dataCount) {
+	this.totalCount = totalCount;
+	this.dataCount  = dataCount;
+}
+
+QRRSBlock.RS_BLOCK_TABLE = [
+
+	[1, 26, 19],
+	[1, 26, 16],
+	[1, 26, 13],
+	[1, 26, 9],
+
+	[1, 44, 34],
+	[1, 44, 28],
+	[1, 44, 22],
+	[1, 44, 16],
+
+	[1, 70, 55],
+	[1, 70, 44],
+	[2, 35, 17],
+	[2, 35, 13],
+
+	[1, 100, 80],
+	[2, 50, 32],
+	[2, 50, 24],
+	[4, 25, 9],
+
+	[1, 134, 108],
+	[2, 67, 43],
+	[2, 33, 15, 2, 34, 16],
+	[2, 33, 11, 2, 34, 12],
+
+	[2, 86, 68],
+	[4, 43, 27],
+	[4, 43, 19],
+	[4, 43, 15],
+
+	[2, 98, 78],
+	[4, 49, 31],
+	[2, 32, 14, 4, 33, 15],
+	[4, 39, 13, 1, 40, 14],
+
+	[2, 121, 97],
+	[2, 60, 38, 2, 61, 39],
+	[4, 40, 18, 2, 41, 19],
+	[4, 40, 14, 2, 41, 15],
+
+	[2, 146, 116],
+	[3, 58, 36, 2, 59, 37],
+	[4, 36, 16, 4, 37, 17],
+	[4, 36, 12, 4, 37, 13],
+
+	[2, 86, 68, 2, 87, 69],
+	[4, 69, 43, 1, 70, 44],
+	[6, 43, 19, 2, 44, 20],
+	[6, 43, 15, 2, 44, 16],
+
+	[4, 101, 81],
+	[1, 80, 50, 4, 81, 51],
+	[4, 50, 22, 4, 51, 23],
+	[3, 36, 12, 8, 37, 13],
+
+	[2, 116, 92, 2, 117, 93],
+	[6, 58, 36, 2, 59, 37],
+	[4, 46, 20, 6, 47, 21],
+	[7, 42, 14, 4, 43, 15],
+
+	[4, 133, 107],
+	[8, 59, 37, 1, 60, 38],
+	[8, 44, 20, 4, 45, 21],
+	[12, 33, 11, 4, 34, 12],
+
+	[3, 145, 115, 1, 146, 116],
+	[4, 64, 40, 5, 65, 41],
+	[11, 36, 16, 5, 37, 17],
+	[11, 36, 12, 5, 37, 13],
+
+	[5, 109, 87, 1, 110, 88],
+	[5, 65, 41, 5, 66, 42],
+	[5, 54, 24, 7, 55, 25],
+	[11, 36, 12, 7, 37, 13],
+
+	[5, 122, 98, 1, 123, 99],
+	[7, 73, 45, 3, 74, 46],
+	[15, 43, 19, 2, 44, 20],
+	[3, 45, 15, 13, 46, 16],
+
+	[1, 135, 107, 5, 136, 108],
+	[10, 74, 46, 1, 75, 47],
+	[1, 50, 22, 15, 51, 23],
+	[2, 42, 14, 17, 43, 15],
+
+	[5, 150, 120, 1, 151, 121],
+	[9, 69, 43, 4, 70, 44],
+	[17, 50, 22, 1, 51, 23],
+	[2, 42, 14, 19, 43, 15],
+
+	[3, 141, 113, 4, 142, 114],
+	[3, 70, 44, 11, 71, 45],
+	[17, 47, 21, 4, 48, 22],
+	[9, 39, 13, 16, 40, 14],
+
+	[3, 135, 107, 5, 136, 108],
+	[3, 67, 41, 13, 68, 42],
+	[15, 54, 24, 5, 55, 25],
+	[15, 43, 15, 10, 44, 16],
+
+	[4, 144, 116, 4, 145, 117],
+	[17, 68, 42],
+	[17, 50, 22, 6, 51, 23],
+	[19, 46, 16, 6, 47, 17],
+
+	[2, 139, 111, 7, 140, 112],
+	[17, 74, 46],
+	[7, 54, 24, 16, 55, 25],
+	[34, 37, 13],
+
+	[4, 151, 121, 5, 152, 122],
+	[4, 75, 47, 14, 76, 48],
+	[11, 54, 24, 14, 55, 25],
+	[16, 45, 15, 14, 46, 16],
+
+	[6, 147, 117, 4, 148, 118],
+	[6, 73, 45, 14, 74, 46],
+	[11, 54, 24, 16, 55, 25],
+	[30, 46, 16, 2, 47, 17],
+
+	[8, 132, 106, 4, 133, 107],
+	[8, 75, 47, 13, 76, 48],
+	[7, 54, 24, 22, 55, 25],
+	[22, 45, 15, 13, 46, 16],
+
+	[10, 142, 114, 2, 143, 115],
+	[19, 74, 46, 4, 75, 47],
+	[28, 50, 22, 6, 51, 23],
+	[33, 46, 16, 4, 47, 17],
+
+	[8, 152, 122, 4, 153, 123],
+	[22, 73, 45, 3, 74, 46],
+	[8, 53, 23, 26, 54, 24],
+	[12, 45, 15, 28, 46, 16],
+
+	[3, 147, 117, 10, 148, 118],
+	[3, 73, 45, 23, 74, 46],
+	[4, 54, 24, 31, 55, 25],
+	[11, 45, 15, 31, 46, 16],
+
+	[7, 146, 116, 7, 147, 117],
+	[21, 73, 45, 7, 74, 46],
+	[1, 53, 23, 37, 54, 24],
+	[19, 45, 15, 26, 46, 16],
+
+	[5, 145, 115, 10, 146, 116],
+	[19, 75, 47, 10, 76, 48],
+	[15, 54, 24, 25, 55, 25],
+	[23, 45, 15, 25, 46, 16],
+
+	[13, 145, 115, 3, 146, 116],
+	[2, 74, 46, 29, 75, 47],
+	[42, 54, 24, 1, 55, 25],
+	[23, 45, 15, 28, 46, 16],
+
+	[17, 145, 115],
+	[10, 74, 46, 23, 75, 47],
+	[10, 54, 24, 35, 55, 25],
+	[19, 45, 15, 35, 46, 16],
+
+	[17, 145, 115, 1, 146, 116],
+	[14, 74, 46, 21, 75, 47],
+	[29, 54, 24, 19, 55, 25],
+	[11, 45, 15, 46, 46, 16],
+
+	[13, 145, 115, 6, 146, 116],
+	[14, 74, 46, 23, 75, 47],
+	[44, 54, 24, 7, 55, 25],
+	[59, 46, 16, 1, 47, 17],
+
+	[12, 151, 121, 7, 152, 122],
+	[12, 75, 47, 26, 76, 48],
+	[39, 54, 24, 14, 55, 25],
+	[22, 45, 15, 41, 46, 16],
+
+	[6, 151, 121, 14, 152, 122],
+	[6, 75, 47, 34, 76, 48],
+	[46, 54, 24, 10, 55, 25],
+	[2, 45, 15, 64, 46, 16],
+
+	[17, 152, 122, 4, 153, 123],
+	[29, 74, 46, 14, 75, 47],
+	[49, 54, 24, 10, 55, 25],
+	[24, 45, 15, 46, 46, 16],
+
+	[4, 152, 122, 18, 153, 123],
+	[13, 74, 46, 32, 75, 47],
+	[48, 54, 24, 14, 55, 25],
+	[42, 45, 15, 32, 46, 16],
+
+	[20, 147, 117, 4, 148, 118],
+	[40, 75, 47, 7, 76, 48],
+	[43, 54, 24, 22, 55, 25],
+	[10, 45, 15, 67, 46, 16],
+
+	[19, 148, 118, 6, 149, 119],
+	[18, 75, 47, 31, 76, 48],
+	[34, 54, 24, 34, 55, 25],
+	[20, 45, 15, 61, 46, 16]
+];
+
+QRRSBlock.getRSBlocks = function(typeNumber, errorCorrectLevel) {
+
+	var rsBlock = QRRSBlock.getRsBlockTable(typeNumber, errorCorrectLevel);
+
+	if (rsBlock === undefined) {
+		throw new Error("bad rs block @ typeNumber:" + typeNumber +
+				"/errorCorrectLevel:" + errorCorrectLevel);
+	}
+
+	var length = rsBlock.length / 3;
+
+	var list = [];
+
+	for (var i = 0; i < length; i++) {
+
+		var count = rsBlock[i * 3 + 0];
+		var totalCount = rsBlock[i * 3 + 1];
+		var dataCount = rsBlock[i * 3 + 2];
+
+		for (var j = 0; j < count; j++) {
+			list.push(new QRRSBlock(totalCount, dataCount) );
+		}
+	}
+
+	return list;
+};
+
+QRRSBlock.getRsBlockTable = function(typeNumber, errorCorrectLevel) {
+
+	switch(errorCorrectLevel) {
+	case QRErrorCorrectLevel.L :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 0];
+	case QRErrorCorrectLevel.M :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 1];
+	case QRErrorCorrectLevel.Q :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 2];
+	case QRErrorCorrectLevel.H :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 3];
+	default :
+		return undefined;
+	}
+};
+function QRBitBuffer() {
+	this.buffer = [];
+	this.length = 0;
+}
+
+QRBitBuffer.prototype = {
+
+	get : function(index) {
+		var bufIndex = Math.floor(index / 8);
+		return ( (this.buffer[bufIndex] >>> (7 - index % 8) ) & 1) === 1;
+	},
+
+	put : function(num, length) {
+		for (var i = 0; i < length; i++) {
+			this.putBit( ( (num >>> (length - i - 1) ) & 1) === 1);
+		}
+	},
+
+	getLengthInBits : function() {
+		return this.length;
+	},
+
+	putBit : function(bit) {
+
+		var bufIndex = Math.floor(this.length / 8);
+		if (this.buffer.length <= bufIndex) {
+			this.buffer.push(0);
+		}
+
+		if (bit) {
+			this.buffer[bufIndex] |= (0x80 >>> (this.length % 8) );
+		}
+
+		this.length++;
+	}
+};
+function QR8bitByte(data) {
+	this.mode = QRMode.MODE_8BIT_BYTE;
+	this.data = data;
+}
+
+QR8bitByte.prototype = {
+
+	getLength : function(buffer) {
+		return this.data.length;
+	},
+
+	write : function(buffer) {
+		for (var i = 0; i < this.data.length; i++) {
+			buffer.put(this.data.charCodeAt(i), 8);
+		}
+	}
+};
+var QRUtil = {
+
+	PATTERN_POSITION_TABLE : [
+
+		[],
+		[6, 18],
+		[6, 22],
+		[6, 26],
+		[6, 30],
+		[6, 34],
+		[6, 22, 38],
+		[6, 24, 42],
+		[6, 26, 46],
+		[6, 28, 50],
+		[6, 30, 54],
+		[6, 32, 58],
+		[6, 34, 62],
+		[6, 26, 46, 66],
+		[6, 26, 48, 70],
+		[6, 26, 50, 74],
+		[6, 30, 54, 78],
+		[6, 30, 56, 82],
+		[6, 30, 58, 86],
+		[6, 34, 62, 90],
+		[6, 28, 50, 72, 94],
+		[6, 26, 50, 74, 98],
+		[6, 30, 54, 78, 102],
+		[6, 28, 54, 80, 106],
+		[6, 32, 58, 84, 110],
+		[6, 30, 58, 86, 114],
+		[6, 34, 62, 90, 118],
+		[6, 26, 50, 74, 98, 122],
+		[6, 30, 54, 78, 102, 126],
+		[6, 26, 52, 78, 104, 130],
+		[6, 30, 56, 82, 108, 134],
+		[6, 34, 60, 86, 112, 138],
+		[6, 30, 58, 86, 114, 142],
+		[6, 34, 62, 90, 118, 146],
+		[6, 30, 54, 78, 102, 126, 150],
+		[6, 24, 50, 76, 102, 128, 154],
+		[6, 28, 54, 80, 106, 132, 158],
+		[6, 32, 58, 84, 110, 136, 162],
+		[6, 26, 54, 82, 110, 138, 166],
+		[6, 30, 58, 86, 114, 142, 170]
+	],
+
+	G15 : (1 << 10) | (1 << 8) | (1 << 5) | (1 << 4) | (1 << 2) | (1 << 1) | (1 << 0),
+	G18 : (1 << 12) | (1 << 11) | (1 << 10) | (1 << 9) | (1 << 8) | (1 << 5) | (1 << 2) | (1 << 0),
+	G15_MASK : (1 << 14) | (1 << 12) | (1 << 10) | (1 << 4) | (1 << 1),
+
+	getBCHTypeInfo : function(data) {
+		var d = data << 10;
+		while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15) >= 0) {
+			d ^= (QRUtil.G15 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15) ) );
+		}
+		return ( (data << 10) | d) ^ QRUtil.G15_MASK;
+	},
+
+	getBCHTypeNumber : function(data) {
+		var d = data << 12;
+		while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18) >= 0) {
+			d ^= (QRUtil.G18 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18) ) );
+		}
+		return (data << 12) | d;
+	},
+
+	getBCHDigit : function(data) {
+		var digit = 0;
+		while (data !== 0) {
+			digit++;
+			data >>>= 1;
+		}
+		return digit;
+	},
+
+	getPatternPosition : function(typeNumber) {
+		return QRUtil.PATTERN_POSITION_TABLE[typeNumber - 1];
+	},
+
+	getMask : function(maskPattern, i, j) {
+
+		switch (maskPattern) {
+
+		case QRMaskPattern.PATTERN000 : return (i + j) % 2 === 0;
+		case QRMaskPattern.PATTERN001 : return i % 2 === 0;
+		case QRMaskPattern.PATTERN010 : return j % 3 === 0;
+		case QRMaskPattern.PATTERN011 : return (i + j) % 3 === 0;
+		case QRMaskPattern.PATTERN100 : return (Math.floor(i / 2) + Math.floor(j / 3) ) % 2 === 0;
+		case QRMaskPattern.PATTERN101 : return (i * j) % 2 + (i * j) % 3 === 0;
+		case QRMaskPattern.PATTERN110 : return ( (i * j) % 2 + (i * j) % 3) % 2 === 0;
+		case QRMaskPattern.PATTERN111 : return ( (i * j) % 3 + (i + j) % 2) % 2 === 0;
+
+		default :
+			throw new Error("bad maskPattern:" + maskPattern);
+		}
+	},
+
+	getErrorCorrectPolynomial : function(errorCorrectLength) {
+
+		var a = new QRPolynomial([1], 0);
+
+		for (var i = 0; i < errorCorrectLength; i++) {
+			a = a.multiply(new QRPolynomial([1, QRMath.gexp(i)], 0) );
+		}
+
+		return a;
+	},
+
+	getLengthInBits : function(mode, type) {
+
+		if (1 <= type && type < 10) {
+
+			switch(mode) {
+			case QRMode.MODE_NUMBER 	: return 10;
+			case QRMode.MODE_ALPHA_NUM 	: return 9;
+			case QRMode.MODE_8BIT_BYTE	: return 8;
+			case QRMode.MODE_KANJI		: return 8;
+			default :
+				throw new Error("mode:" + mode);
+			}
+
+		} else if (type < 27) {
+
+			switch(mode) {
+			case QRMode.MODE_NUMBER 	: return 12;
+			case QRMode.MODE_ALPHA_NUM 	: return 11;
+			case QRMode.MODE_8BIT_BYTE	: return 16;
+			case QRMode.MODE_KANJI		: return 10;
+			default :
+				throw new Error("mode:" + mode);
+			}
+
+		} else if (type < 41) {
+
+			switch(mode) {
+			case QRMode.MODE_NUMBER 	: return 14;
+			case QRMode.MODE_ALPHA_NUM	: return 13;
+			case QRMode.MODE_8BIT_BYTE	: return 16;
+			case QRMode.MODE_KANJI		: return 12;
+			default :
+				throw new Error("mode:" + mode);
+			}
+
+		} else {
+			throw new Error("type:" + type);
+		}
+	},
+
+	getLostPoint : function(qrCode) {
+
+		var moduleCount = qrCode.getModuleCount();
+
+		var lostPoint = 0;
+
+		for (var row = 0; row < moduleCount; row++) {
+			for (var col = 0; col < moduleCount; col++) {
+
+				var sameCount = 0;
+				var dark = qrCode.isDark(row, col);
+
+				for (var r = -1; r <= 1; r++) {
+
+					if (row + r < 0 || moduleCount <= row + r) {
+						continue;
+					}
+
+					for (var c = -1; c <= 1; c++) {
+
+						if (col + c < 0 || moduleCount <= col + c) {
+							continue;
+						}
+
+						if (r === 0 && c === 0) {
+							continue;
+						}
+
+						if (dark === qrCode.isDark(row + r, col + c) ) {
+							sameCount++;
+						}
+					}
+				}
+
+				if (sameCount > 5) {
+					lostPoint += (3 + sameCount - 5);
+				}
+			}
+		}
+
+		for (var row = 0; row < moduleCount - 1; row++) {
+			for (var col = 0; col < moduleCount - 1; col++) {
+				var count = 0;
+				if (qrCode.isDark(row, 	  col	   ) ) count++;
+				if (qrCode.isDark(row + 1, col	   ) ) count++;
+				if (qrCode.isDark(row,     col + 1) ) count++;
+				if (qrCode.isDark(row + 1, col + 1) ) count++;
+				if (count === 0 || count === 4) {
+					lostPoint += 3;
+				}
+			}
+		}
+
+		for (var row = 0; row < moduleCount; row++) {
+			for (var col = 0; col < moduleCount - 6; col++) {
+				if (qrCode.isDark(row, col)
+						&& !qrCode.isDark(row, col + 1)
+						&&  qrCode.isDark(row, col + 2)
+						&&  qrCode.isDark(row, col + 3)
+						&&  qrCode.isDark(row, col + 4)
+						&& !qrCode.isDark(row, col + 5)
+						&&  qrCode.isDark(row, col + 6) ) {
+					lostPoint += 40;
+				}
+			}
+		}
+
+		for (var col = 0; col < moduleCount; col++) {
+			for (var row = 0; row < moduleCount - 6; row++) {
+				if (qrCode.isDark(row, col)
+						&& !qrCode.isDark(row + 1, col)
+						&&  qrCode.isDark(row + 2, col)
+						&&  qrCode.isDark(row + 3, col)
+						&&  qrCode.isDark(row + 4, col)
+						&& !qrCode.isDark(row + 5, col)
+						&&  qrCode.isDark(row + 6, col) ) {
+					lostPoint += 40;
+				}
+			}
+		}
+
+		var darkCount = 0;
+
+		for (var col = 0; col < moduleCount; col++) {
+			for (var row = 0; row < moduleCount; row++) {
+				if (qrCode.isDark(row, col) ) {
+					darkCount++;
+				}
+			}
+		}
+
+		var ratio = Math.abs(100 * darkCount / moduleCount / moduleCount - 50) / 5;
+		lostPoint += ratio * 10;
+
+		return lostPoint;
+	}
+
+};
+function QRCode(typeNumber, errorCorrectLevel) {
+	this.typeNumber = typeNumber;
+	this.errorCorrectLevel = errorCorrectLevel;
+	this.modules = null;
+	this.moduleCount = 0;
+	this.dataCache = null;
+	this.dataList = [];
+}
+
+QRCode.prototype = {
+	
+	addData : function(data) {
+		var newData = new QR8bitByte(data);
+		this.dataList.push(newData);
+		this.dataCache = null;
+	},
+	
+	isDark : function(row, col) {
+		if (row < 0 || this.moduleCount <= row || col < 0 || this.moduleCount <= col) {
+			throw new Error(row + "," + col);
+		}
+		return this.modules[row][col];
+	},
+
+	getModuleCount : function() {
+		return this.moduleCount;
+	},
+	
+	make : function() {
+		if (this.typeNumber < 1 ){
+			var typeNumber = 1;
+			for (typeNumber = 1; typeNumber < 40; typeNumber++) {
+				var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, this.errorCorrectLevel);
+
+				var buffer = new QRBitBuffer();
+				var totalDataCount = 0;
+				for (var i = 0; i < rsBlocks.length; i++) {
+					totalDataCount += rsBlocks[i].dataCount;
+				}
+
+				for (var x = 0; x < this.dataList.length; x++) {
+					var data = this.dataList[x];
+					buffer.put(data.mode, 4);
+					buffer.put(data.getLength(), QRUtil.getLengthInBits(data.mode, typeNumber) );
+					data.write(buffer);
+				}
+				if (buffer.getLengthInBits() <= totalDataCount * 8)
+					break;
+			}
+			this.typeNumber = typeNumber;
+		}
+		this.makeImpl(false, this.getBestMaskPattern() );
+	},
+	
+	makeImpl : function(test, maskPattern) {
+		
+		this.moduleCount = this.typeNumber * 4 + 17;
+		this.modules = new Array(this.moduleCount);
+		
+		for (var row = 0; row < this.moduleCount; row++) {
+			
+			this.modules[row] = new Array(this.moduleCount);
+			
+			for (var col = 0; col < this.moduleCount; col++) {
+				this.modules[row][col] = null;
+			}
+		}
+	
+		this.setupPositionProbePattern(0, 0);
+		this.setupPositionProbePattern(this.moduleCount - 7, 0);
+		this.setupPositionProbePattern(0, this.moduleCount - 7);
+		this.setupPositionAdjustPattern();
+		this.setupTimingPattern();
+		this.setupTypeInfo(test, maskPattern);
+		
+		if (this.typeNumber >= 7) {
+			this.setupTypeNumber(test);
+		}
+	
+		if (this.dataCache === null) {
+			this.dataCache = QRCode.createData(this.typeNumber, this.errorCorrectLevel, this.dataList);
+		}
+	
+		this.mapData(this.dataCache, maskPattern);
+	},
+
+	setupPositionProbePattern : function(row, col)  {
+		
+		for (var r = -1; r <= 7; r++) {
+			
+			if (row + r <= -1 || this.moduleCount <= row + r) continue;
+			
+			for (var c = -1; c <= 7; c++) {
+				
+				if (col + c <= -1 || this.moduleCount <= col + c) continue;
+				
+				if ( (0 <= r && r <= 6 && (c === 0 || c === 6) ) || 
+                     (0 <= c && c <= 6 && (r === 0 || r === 6) ) || 
+                     (2 <= r && r <= 4 && 2 <= c && c <= 4) ) {
+					this.modules[row + r][col + c] = true;
+				} else {
+					this.modules[row + r][col + c] = false;
+				}
+			}		
+		}		
+	},
+	
+	getBestMaskPattern : function() {
+	
+		var minLostPoint = 0;
+		var pattern = 0;
+	
+		for (var i = 0; i < 8; i++) {
+			
+			this.makeImpl(true, i);
+	
+			var lostPoint = QRUtil.getLostPoint(this);
+	
+			if (i === 0 || minLostPoint >  lostPoint) {
+				minLostPoint = lostPoint;
+				pattern = i;
+			}
+		}
+	
+		return pattern;
+	},
+	
+	setupTimingPattern : function() {
+		
+		for (var r = 8; r < this.moduleCount - 8; r++) {
+			if (this.modules[r][6] !== null) {
+				continue;
+			}
+			this.modules[r][6] = (r % 2 === 0);
+		}
+	
+		for (var c = 8; c < this.moduleCount - 8; c++) {
+			if (this.modules[6][c] !== null) {
+				continue;
+			}
+			this.modules[6][c] = (c % 2 === 0);
+		}
+	},
+	
+	setupPositionAdjustPattern : function() {
+	
+		var pos = QRUtil.getPatternPosition(this.typeNumber);
+		
+		for (var i = 0; i < pos.length; i++) {
+		
+			for (var j = 0; j < pos.length; j++) {
+			
+				var row = pos[i];
+				var col = pos[j];
+				
+				if (this.modules[row][col] !== null) {
+					continue;
+				}
+				
+				for (var r = -2; r <= 2; r++) {
+				
+					for (var c = -2; c <= 2; c++) {
+					
+						if (Math.abs(r) === 2 || 
+                            Math.abs(c) === 2 ||
+                            (r === 0 && c === 0) ) {
+							this.modules[row + r][col + c] = true;
+						} else {
+							this.modules[row + r][col + c] = false;
+						}
+					}
+				}
+			}
+		}
+	},
+	
+	setupTypeNumber : function(test) {
+	
+		var bits = QRUtil.getBCHTypeNumber(this.typeNumber);
+        var mod;
+	
+		for (var i = 0; i < 18; i++) {
+			mod = (!test && ( (bits >> i) & 1) === 1);
+			this.modules[Math.floor(i / 3)][i % 3 + this.moduleCount - 8 - 3] = mod;
+		}
+	
+		for (var x = 0; x < 18; x++) {
+			mod = (!test && ( (bits >> x) & 1) === 1);
+			this.modules[x % 3 + this.moduleCount - 8 - 3][Math.floor(x / 3)] = mod;
+		}
+	},
+	
+	setupTypeInfo : function(test, maskPattern) {
+	
+		var data = (this.errorCorrectLevel << 3) | maskPattern;
+		var bits = QRUtil.getBCHTypeInfo(data);
+        var mod;
+	
+		for (var v = 0; v < 15; v++) {
+	
+			mod = (!test && ( (bits >> v) & 1) === 1);
+	
+			if (v < 6) {
+				this.modules[v][8] = mod;
+			} else if (v < 8) {
+				this.modules[v + 1][8] = mod;
+			} else {
+				this.modules[this.moduleCount - 15 + v][8] = mod;
+			}
+		}
+	
+		for (var h = 0; h < 15; h++) {
+	
+			mod = (!test && ( (bits >> h) & 1) === 1);
+			
+			if (h < 8) {
+				this.modules[8][this.moduleCount - h - 1] = mod;
+			} else if (h < 9) {
+				this.modules[8][15 - h - 1 + 1] = mod;
+			} else {
+				this.modules[8][15 - h - 1] = mod;
+			}
+		}
+	
+		this.modules[this.moduleCount - 8][8] = (!test);
+	
+	},
+	
+	mapData : function(data, maskPattern) {
+		
+		var inc = -1;
+		var row = this.moduleCount - 1;
+		var bitIndex = 7;
+		var byteIndex = 0;
+		
+		for (var col = this.moduleCount - 1; col > 0; col -= 2) {
+	
+			if (col === 6) col--;
+	
+			while (true) {
+	
+				for (var c = 0; c < 2; c++) {
+					
+					if (this.modules[row][col - c] === null) {
+						
+						var dark = false;
+	
+						if (byteIndex < data.length) {
+							dark = ( ( (data[byteIndex] >>> bitIndex) & 1) === 1);
+						}
+	
+						var mask = QRUtil.getMask(maskPattern, row, col - c);
+	
+						if (mask) {
+							dark = !dark;
+						}
+						
+						this.modules[row][col - c] = dark;
+						bitIndex--;
+	
+						if (bitIndex === -1) {
+							byteIndex++;
+							bitIndex = 7;
+						}
+					}
+				}
+									
+				row += inc;
+	
+				if (row < 0 || this.moduleCount <= row) {
+					row -= inc;
+					inc = -inc;
+					break;
+				}
+			}
+		}
+		
+	}
+
+};
+
+QRCode.PAD0 = 0xEC;
+QRCode.PAD1 = 0x11;
+
+QRCode.createData = function(typeNumber, errorCorrectLevel, dataList) {
+	
+	var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, errorCorrectLevel);
+	
+	var buffer = new QRBitBuffer();
+	
+	for (var i = 0; i < dataList.length; i++) {
+		var data = dataList[i];
+		buffer.put(data.mode, 4);
+		buffer.put(data.getLength(), QRUtil.getLengthInBits(data.mode, typeNumber) );
+		data.write(buffer);
+	}
+
+	var totalDataCount = 0;
+	for (var x = 0; x < rsBlocks.length; x++) {
+		totalDataCount += rsBlocks[x].dataCount;
+	}
+
+	if (buffer.getLengthInBits() > totalDataCount * 8) {
+		throw new Error("code length overflow. (" + 
+            buffer.getLengthInBits() + 
+            ">" +  
+            totalDataCount * 8 + 
+            ")");
+	}
+
+	if (buffer.getLengthInBits() + 4 <= totalDataCount * 8) {
+		buffer.put(0, 4);
+	}
+
+	while (buffer.getLengthInBits() % 8 !== 0) {
+		buffer.putBit(false);
+	}
+
+	while (true) {
+		
+		if (buffer.getLengthInBits() >= totalDataCount * 8) {
+			break;
+		}
+		buffer.put(QRCode.PAD0, 8);
+		
+		if (buffer.getLengthInBits() >= totalDataCount * 8) {
+			break;
+		}
+		buffer.put(QRCode.PAD1, 8);
+	}
+
+	return QRCode.createBytes(buffer, rsBlocks);
+};
+
+QRCode.createBytes = function(buffer, rsBlocks) {
+
+	var offset = 0;
+	
+	var maxDcCount = 0;
+	var maxEcCount = 0;
+	
+	var dcdata = new Array(rsBlocks.length);
+	var ecdata = new Array(rsBlocks.length);
+	
+	for (var r = 0; r < rsBlocks.length; r++) {
+
+		var dcCount = rsBlocks[r].dataCount;
+		var ecCount = rsBlocks[r].totalCount - dcCount;
+
+		maxDcCount = Math.max(maxDcCount, dcCount);
+		maxEcCount = Math.max(maxEcCount, ecCount);
+		
+		dcdata[r] = new Array(dcCount);
+		
+		for (var i = 0; i < dcdata[r].length; i++) {
+			dcdata[r][i] = 0xff & buffer.buffer[i + offset];
+		}
+		offset += dcCount;
+		
+		var rsPoly = QRUtil.getErrorCorrectPolynomial(ecCount);
+		var rawPoly = new QRPolynomial(dcdata[r], rsPoly.getLength() - 1);
+
+		var modPoly = rawPoly.mod(rsPoly);
+		ecdata[r] = new Array(rsPoly.getLength() - 1);
+		for (var x = 0; x < ecdata[r].length; x++) {
+            var modIndex = x + modPoly.getLength() - ecdata[r].length;
+			ecdata[r][x] = (modIndex >= 0)? modPoly.get(modIndex) : 0;
+		}
+
+	}
+	
+	var totalCodeCount = 0;
+	for (var y = 0; y < rsBlocks.length; y++) {
+		totalCodeCount += rsBlocks[y].totalCount;
+	}
+
+	var data = new Array(totalCodeCount);
+	var index = 0;
+
+	for (var z = 0; z < maxDcCount; z++) {
+		for (var s = 0; s < rsBlocks.length; s++) {
+			if (z < dcdata[s].length) {
+				data[index++] = dcdata[s][z];
+			}
+		}
+	}
+
+	for (var xx = 0; xx < maxEcCount; xx++) {
+		for (var t = 0; t < rsBlocks.length; t++) {
+			if (xx < ecdata[t].length) {
+				data[index++] = ecdata[t][xx];
+			}
+		}
+	}
+
+	return data;
+
+};
+QRCode.ErrorCorrectLevel = QRErrorCorrectLevel;
+return QRCode;
+})();
+
+function renderQRCodeSVG(text, size){
+  var qr = new QRCodeLib(0, QRCodeLib.ErrorCorrectLevel.M);
+  qr.addData(text);
+  qr.make();
+  var count = qr.getModuleCount();
+  var cell = size / count;
+  var rects = "";
+  for(var r=0;r<count;r++){
+    for(var c=0;c<count;c++){
+      if(qr.isDark(r,c)){
+        rects += '<rect x="'+(c*cell).toFixed(2)+'" y="'+(r*cell).toFixed(2)+'" width="'+(cell+0.5).toFixed(2)+'" height="'+(cell+0.5).toFixed(2)+'"/>';
+      }
+    }
+  }
+  return '<svg viewBox="0 0 '+size+' '+size+'" width="'+size+'" height="'+size+'" xmlns="http://www.w3.org/2000/svg">'
+       + '<rect width="'+size+'" height="'+size+'" fill="#ffffff"/>'
+       + '<g fill="#201A10">'+rects+'</g></svg>';
+}
+/* =====================================================================
+   HUNGRY OWL MENU — data model + storage
+
+   Data lives in shared persistent storage under key "menu-data".
+   Every visitor who opens this artifact reads/writes the SAME
+   record, so it behaves like a tiny live menu API:
+     - "Manage Menu" = write access (admin panel)
+     - the public menu view = read access
+
+   NOTE: prompt() / confirm() / alert() are disabled inside Claude's
+   artifact sandbox, so all interaction below uses in-page modals,
+   an on-screen PIN keypad, and a tap-twice "confirm" pattern instead.
+===================================================================== */
+
+const STORAGE_KEY = "menu-data";
+const ADMIN_PIN = "1947"; // change this to whatever PIN you want staff to use
+
+const DEFAULT_MENU = {
+  sections: [
+    { id: "s1", name: "Hot Beverages", items: [
+      { id: "i1", name: "Chai", price: 15 },
+      { id: "i2", name: "Cutting Chai", price: 10 },
+      { id: "i3", name: "Masala Chai", price: 20 },
+      { id: "i4", name: "Hot Coffee", price: 30 },
+      { id: "i5", name: "Hot Chocolate", price: 90 },
+    ]},
+    { id: "s2", name: "Buns", items: [
+      { id: "i6", name: "Bun Maska", price: 30 },
+      { id: "i7", name: "Bun Makkhan", price: 30 },
+    ]},
+    { id: "s3", name: "Maggi", items: [
+      { id: "i8", name: "Plain Maggi", price: 35 },
+      { id: "i9", name: "Veg Maggi", price: 40 },
+      { id: "i10", name: "Cheese Maggi", price: 60 },
+    ]},
+    { id: "s4", name: "Sandwiches", items: [
+      { id: "i11", name: "Potato Veggies Grilled Sandwich", price: 40 },
+      { id: "i12", name: "Veg Grilled Sandwich", price: 50 },
+      { id: "i13", name: "Cheese Grilled Sandwich", price: 70 },
+      { id: "i14", name: "Paneer Grilled Sandwich", price: 70 },
+    ]},
+    { id: "s5", name: "Egg Items", items: [
+      { id: "i15", name: "Plain Omelette", price: 35 },
+      { id: "i16", name: "Bun Omelette", price: 40 },
+      { id: "i17", name: "Bread Omelette", price: 40 },
+    ]},
+  ]
+};
+
+let menu = null;
+let isAdmin = false;
+let pinEntry = "";
+
+/* ---------------- SITE BRANDING (name / tagline / logo / phone) ---------------- */
+const SITE_CONFIG_KEY = "site-config";
+// logoImage: base64 data-URL of an uploaded logo (compressed client-side before saving)
+const DEFAULT_SITE_CONFIG = { brandName: "Hungry Owl", tagline: "Chai · Snacks · Sandwiches", logoEmoji: "", logoImage: "", phone: "" };
+let uploadedLogoDraft = null; // holds a freshly-picked-but-not-yet-saved logo (data URL) or null
+
+async function loadSiteConfig(){
+  try{
+    const res = await window.storage.get(SITE_CONFIG_KEY, true);
+    return res ? { ...DEFAULT_SITE_CONFIG, ...JSON.parse(res.value) } : { ...DEFAULT_SITE_CONFIG };
+  }catch(e){
+    return { ...DEFAULT_SITE_CONFIG };
+  }
+}
+async function saveSiteConfig(cfg){
+  await window.storage.set(SITE_CONFIG_KEY, JSON.stringify(cfg), true);
+}
+function applySiteConfig(cfg){
+  document.getElementById("brandName").textContent = cfg.brandName || DEFAULT_SITE_CONFIG.brandName;
+  document.getElementById("brandTagline").textContent = cfg.tagline || DEFAULT_SITE_CONFIG.tagline;
+  document.title = (cfg.brandName || DEFAULT_SITE_CONFIG.brandName) + " — Menu";
+
+  const logoArea = document.getElementById("logoArea");
+  if(cfg.logoImage){
+    logoArea.innerHTML = `<img class="logo-image" src="${cfg.logoImage}" alt="Logo">`;
+  } else if(cfg.logoEmoji && cfg.logoEmoji.trim()){
+    logoArea.innerHTML = `<div class="logo-emoji">${escapeHtml(cfg.logoEmoji.trim())}</div>`;
+  } else {
+    logoArea.innerHTML = `<svg class="owl" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="50" cy="30" rx="26" ry="14" fill="#fff" stroke="#201A10" stroke-width="3"/>
+      <path d="M28 24 Q50 6 72 24" fill="#fff" stroke="#201A10" stroke-width="3"/>
+      <ellipse cx="50" cy="58" rx="30" ry="34" fill="#5B5A63" stroke="#201A10" stroke-width="3"/>
+      <circle cx="38" cy="52" r="11" fill="#fff" stroke="#201A10" stroke-width="3"/>
+      <circle cx="62" cy="52" r="11" fill="#fff" stroke="#201A10" stroke-width="3"/>
+      <circle cx="38" cy="52" r="4.5" fill="#201A10"/>
+      <circle cx="62" cy="52" r="4.5" fill="#201A10"/>
+      <path d="M50 58 L45 66 L55 66 Z" fill="#F0C24E" stroke="#201A10" stroke-width="2"/>
+    </svg>`;
+  }
+
+  const phoneLink = document.getElementById("brandPhone");
+  const phoneNum = document.getElementById("brandPhoneNum");
+  if(cfg.phone && cfg.phone.trim()){
+    phoneNum.textContent = cfg.phone.trim();
+    phoneLink.href = "tel:" + cfg.phone.trim().replace(/[^\d+]/g,"");
+    phoneLink.style.display = "inline-flex";
+  } else {
+    phoneLink.style.display = "none";
+  }
+}
+
+async function populateBrandFields(cfg){
+  document.getElementById("cfgBrandName").value = cfg.brandName || "";
+  document.getElementById("cfgTagline").value = cfg.tagline || "";
+  document.getElementById("cfgLogoEmoji").value = cfg.logoEmoji || "";
+  document.getElementById("cfgPhone").value = cfg.phone || "";
+  uploadedLogoDraft = null;
+  renderLogoPreview(cfg);
+}
+
+function renderLogoPreview(cfg){
+  const preview = document.getElementById("logoPreview");
+  const removeBtn = document.getElementById("removeLogoBtn");
+  const current = uploadedLogoDraft !== null ? uploadedLogoDraft : cfg.logoImage;
+  if(current){
+    preview.innerHTML = `<img src="${current}" alt="Logo preview">`;
+    removeBtn.style.display = "inline-flex";
+  } else {
+    preview.innerHTML = (cfg.logoEmoji && cfg.logoEmoji.trim()) ? escapeHtml(cfg.logoEmoji.trim()) : "🦉";
+    removeBtn.style.display = "none";
+  }
+}
+
+/* Resize + compress an uploaded image client-side (canvas) before storing
+   it as base64. Persistent storage values are capped at 5MB, and large
+   base64 blobs are slow to sync — a small square JPEG is plenty for a
+   logo that renders at ~76px. */
+function readAndCompressImage(file){
+  return new Promise((resolve, reject) => {
+    if(!file.type.startsWith("image/")){ reject(new Error("Please choose an image file")); return; }
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("Couldn't read that file"));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("Couldn't load that image"));
+      img.onload = () => {
+        const target = 300; // px, square
+        const canvas = document.createElement("canvas");
+        canvas.width = target; canvas.height = target;
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0,0,target,target);
+        // cover-crop to a centered square
+        const side = Math.min(img.width, img.height);
+        const sx = (img.width - side) / 2;
+        const sy = (img.height - side) / 2;
+        ctx.drawImage(img, sx, sy, side, side, 0, 0, target, target);
+        let quality = 0.85;
+        let dataUrl = canvas.toDataURL("image/jpeg", quality);
+        // keep shrinking quality until comfortably under the storage limit
+        while(dataUrl.length > 700000 && quality > 0.3){
+          quality -= 0.15;
+          dataUrl = canvas.toDataURL("image/jpeg", quality);
+        }
+        resolve(dataUrl);
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+document.getElementById("logoFileInput").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const hint = document.getElementById("logoHint");
+  hint.textContent = "Processing image…";
+  try{
+    const dataUrl = await readAndCompressImage(file);
+    uploadedLogoDraft = dataUrl;
+    renderLogoPreview(await loadSiteConfig());
+    hint.textContent = "Logo ready — tap \"Save Branding\" to apply it.";
+  }catch(err){
+    hint.textContent = "Couldn't use that image: " + err.message;
+  }
+  e.target.value = "";
+});
+
+document.getElementById("removeLogoBtn").addEventListener("click", async () => {
+  uploadedLogoDraft = ""; // explicit empty = remove on next save
+  renderLogoPreview(await loadSiteConfig());
+  document.getElementById("logoHint").textContent = "Logo will be removed when you tap \"Save Branding\".";
+});
+
+document.getElementById("saveBrandBtn").addEventListener("click", async () => {
+  const existing = await loadSiteConfig();
+  const cfg = {
+    brandName: document.getElementById("cfgBrandName").value.trim(),
+    tagline: document.getElementById("cfgTagline").value.trim(),
+    logoEmoji: document.getElementById("cfgLogoEmoji").value.trim(),
+    phone: document.getElementById("cfgPhone").value.trim(),
+    logoImage: uploadedLogoDraft !== null ? uploadedLogoDraft : existing.logoImage,
+  };
+  document.getElementById("logoArea").innerHTML = ""; // force re-render (owl / emoji / image)
+  applySiteConfig(cfg);
+  await saveSiteConfig(cfg);
+  uploadedLogoDraft = null;
+  renderLogoPreview(cfg);
+  document.getElementById("logoHint").textContent = "";
+  showToast("Branding saved");
+});
+
+/* ---------------- DARK THEME TOGGLE ---------------- */
+let darkMode = false;
+function applyTheme(){
+  document.body.setAttribute("data-theme", darkMode ? "dark" : "light");
+  const label = document.getElementById("themeFab");
+  label.innerHTML = darkMode ? "☀️<span class=\"fab-label\"> Light</span>" : "🌙<span class=\"fab-label\"> Dark</span>";
+}
+document.getElementById("themeFab").addEventListener("click", () => {
+  darkMode = !darkMode;
+  applyTheme();
+});
+
+/* ---------------- CUSTOMER-ONLY MODE (via QR link) ---------------- */
+const urlParams = new URLSearchParams(window.location.search);
+const isCustomerMode = urlParams.get("view") === "customer";
+if(isCustomerMode){
+  document.getElementById("adminFab").style.display = "none";
+  document.getElementById("qrFab").style.display = "none";
+}
+
+function uid(prefix){ return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+async function loadMenu(){
+  try{
+    const res = await window.storage.get(STORAGE_KEY, true);
+    menu = res ? JSON.parse(res.value) : structuredClone(DEFAULT_MENU);
+  }catch(e){
+    menu = structuredClone(DEFAULT_MENU);
+    await saveMenu();
+  }
+  renderPublicMenu();
+}
+
+async function saveMenu(){
+  try{
+    const result = await window.storage.set(STORAGE_KEY, JSON.stringify(menu), true);
+    if(!result) showToast("Couldn't save — try again");
+  }catch(e){
+    showToast("Save failed: " + e.message);
+  }
+}
+
+function money(n){ return "₹" + Number(n).toString(); }
+
+function showToast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=>t.classList.remove("show"), 1800);
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ---------------- CART ---------------- */
+let cart = {}; // { itemId: qty }
+let orderingMode = false;
+
+function renderPublicMenu(){
+  const area = document.getElementById("menuArea");
+  if(!menu.sections.length){
+    area.innerHTML = `<div class="empty-note">The menu is empty right now — check back soon.</div>`;
+    renderCatNav();
+    return;
+  }
+  area.innerHTML = menu.sections.map(sec => `
+    <div class="section" id="section-${sec.id}">
+      <div class="section-title-row">
+        <div class="rule"></div><div class="pill">${escapeHtml(sec.name)}</div><div class="rule"></div>
+      </div>
+      ${ sec.items.length
+          ? sec.items.map(it => {
+              const qty = cart[it.id] || 0;
+              let control = "";
+              if(orderingMode){
+                control = qty > 0
+                  ? `<div class="item-qty-stepper">
+                       <button data-cart-act="dec" data-iid="${it.id}">−</button>
+                       <span class="qty-num">${qty}</span>
+                       <button data-cart-act="inc" data-iid="${it.id}">+</button>
+                     </div>`
+                  : `<button class="item-add-btn" data-cart-act="inc" data-iid="${it.id}">+</button>`;
+              }
+              return `
+            <div class="item-row">
+              <span class="item-name">${escapeHtml(it.name)}</span>
+              <span class="dots"></span>
+              <span class="item-price">${money(it.price)}</span>
+              ${control}
+            </div>`;
+            }).join("")
+          : `<div class="empty-note">No items yet in this section.</div>`
+      }
+    </div>
+  `).join("");
+  renderCatNav();
+  observeSections();
+}
+
+/* ---------------- CATEGORY QUICK-NAV ---------------- */
+let sectionObserver = null;
+
+function renderCatNav(){
+  const nav = document.getElementById("catNav");
+  if(!menu.sections.length){ nav.innerHTML = ""; return; }
+  nav.innerHTML = menu.sections.map((sec, i) =>
+    `<button class="cat-pill${i===0?' active':''}" data-target="section-${sec.id}">${escapeHtml(sec.name)}</button>`
+  ).join("");
+}
+
+document.getElementById("catNav").addEventListener("click", (e) => {
+  const btn = e.target.closest(".cat-pill");
+  if(!btn) return;
+  const target = document.getElementById(btn.dataset.target);
+  if(target){
+    const navHeight = document.getElementById("catNav").offsetHeight + 10;
+    const y = target.getBoundingClientRect().top + window.scrollY - navHeight;
+    window.scrollTo({ top: y, behavior: "smooth" });
+  }
+});
+
+function observeSections(){
+  if(sectionObserver) sectionObserver.disconnect();
+  const sections = Array.from(document.querySelectorAll(".section"));
+  if(!sections.length) return;
+  sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        const id = entry.target.id;
+        document.querySelectorAll(".cat-pill").forEach(p => {
+          p.classList.toggle("active", p.dataset.target === id);
+        });
+      }
+    });
+  }, { rootMargin: "-120px 0px -70% 0px", threshold: 0 });
+  sections.forEach(s => sectionObserver.observe(s));
+}
+
+/* ---------------- ORDER HERE TOGGLE ---------------- */
+const orderHereBtn = document.getElementById("orderHereBtn");
+orderHereBtn.addEventListener("click", () => {
+  orderingMode = !orderingMode;
+  orderHereBtn.classList.toggle("active", orderingMode);
+  orderHereBtn.textContent = orderingMode ? "✅ Ordering Mode — tap items to add" : "🍽️ Order Here";
+  renderPublicMenu();
+  updateCartFab();
+});
+
+function allItemsFlat(){
+  const map = {};
+  menu.sections.forEach(sec => sec.items.forEach(it => { map[it.id] = { ...it, section: sec.name }; }));
+  return map;
+}
+
+function cartCount(){ return Object.values(cart).reduce((a,b) => a+b, 0); }
+function cartTotal(){
+  const items = allItemsFlat();
+  return Object.entries(cart).reduce((sum,[id,qty]) => sum + (items[id] ? items[id].price*qty : 0), 0);
+}
+
+function updateCartFab(){
+  const fab = document.getElementById("cartFab");
+  const badge = document.getElementById("cartBadge");
+  const count = cartCount();
+  badge.textContent = count;
+  fab.style.display = count > 0 ? "flex" : "none";
+}
+
+document.getElementById("menuArea").addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-cart-act]");
+  if(!btn) return;
+  const iid = btn.dataset.iid;
+  const act = btn.dataset.cartAct;
+  const items = allItemsFlat();
+  if(!items[iid]) return;
+  if(act === "inc"){
+    cart[iid] = (cart[iid] || 0) + 1;
+  } else if(act === "dec"){
+    cart[iid] = (cart[iid] || 0) - 1;
+    if(cart[iid] <= 0) delete cart[iid];
+  }
+  renderPublicMenu();
+  updateCartFab();
+});
+
+function renderCart(){
+  const wrap = document.getElementById("cartItems");
+  const items = allItemsFlat();
+  const entries = Object.entries(cart).filter(([id]) => items[id]);
+  if(!entries.length){
+    wrap.innerHTML = `<div class="empty-cart">Your order is empty — tap the "+" next to any item on the menu to add it.</div>`;
+    document.getElementById("cartTotalRow").style.display = "none";
+    document.getElementById("sendOrderBtn").disabled = true;
+    return;
+  }
+  document.getElementById("sendOrderBtn").disabled = false;
+  wrap.innerHTML = entries.map(([id, qty]) => {
+    const it = items[id];
+    return `
+      <div class="order-row">
+        <span class="oname">${escapeHtml(it.name)}</span>
+        <div class="item-qty-stepper">
+          <button data-cart-act="dec" data-iid="${id}">−</button>
+          <span class="qty-num">${qty}</span>
+          <button data-cart-act="inc" data-iid="${id}">+</button>
+        </div>
+        <span class="oprice">${money(it.price*qty)}</span>
+      </div>`;
+  }).join("");
+  document.getElementById("cartTotalRow").style.display = "flex";
+  document.getElementById("cartTotal").textContent = money(cartTotal());
+}
+
+// cart quantity buttons inside the cart modal itself
+document.getElementById("cartItems").addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-cart-act]");
+  if(!btn) return;
+  const iid = btn.dataset.iid;
+  const act = btn.dataset.cartAct;
+  if(act === "inc"){
+    cart[iid] = (cart[iid] || 0) + 1;
+  } else if(act === "dec"){
+    cart[iid] = (cart[iid] || 0) - 1;
+    if(cart[iid] <= 0) delete cart[iid];
+  }
+  renderCart();
+  renderPublicMenu();
+  updateCartFab();
+});
+
+const cartBackdrop = document.getElementById("cartBackdrop");
+document.getElementById("cartFab").addEventListener("click", () => {
+  renderCart();
+  document.getElementById("sendOrderHint").textContent = "";
+  document.getElementById("shareFallbackActions").style.display = "none";
+  cartBackdrop.classList.add("open");
+});
+document.getElementById("cartClose").addEventListener("click", () => cartBackdrop.classList.remove("open"));
+cartBackdrop.addEventListener("click", (e) => { if(e.target === cartBackdrop) cartBackdrop.classList.remove("open"); });
+
+/* ---------------- ORDER NUMBERING ---------------- */
+const ORDER_COUNTER_KEY = "order-counter";
+
+async function getNextOrderNumber(){
+  let current = 0;
+  try{
+    const res = await window.storage.get(ORDER_COUNTER_KEY, true);
+    if(res) current = JSON.parse(res.value).lastOrderNo || 0;
+  }catch(e){ current = 0; }
+  const next = current + 1;
+  try{
+    await window.storage.set(ORDER_COUNTER_KEY, JSON.stringify({ lastOrderNo: next }), true);
+  }catch(e){ /* if saving fails, we still use the number for this order */ }
+  return next;
+}
+function formatOrderNo(n){ return "#" + String(n).padStart(4, "0"); }
+
+/* ---------------- CANVAS TEXT HELPERS (used by both image exports) ---------------- */
+// Truncates text with an ellipsis so it fits within maxWidth for the ctx's current font.
+function fitText(ctx, text, maxWidth){
+  if(ctx.measureText(text).width <= maxWidth) return text;
+  let s = text;
+  while(s.length > 1 && ctx.measureText(s + "…").width > maxWidth){
+    s = s.slice(0, -1);
+  }
+  return s + "…";
+}
+// Greedy word-wrap: returns an array of lines, each fitting within maxWidth.
+function wrapText(ctx, text, maxWidth, maxLines){
+  const words = text.split(/\s+/);
+  const lines = [];
+  let line = "";
+  for(const word of words){
+    const test = line ? line + " " + word : word;
+    if(ctx.measureText(test).width > maxWidth && line){
+      lines.push(line);
+      line = word;
+      if(maxLines && lines.length === maxLines - 1){
+        // last allowed line: fit the remainder with ellipsis
+        const rest = words.slice(words.indexOf(word)).join(" ");
+        lines.push(fitText(ctx, rest, maxWidth));
+        return lines;
+      }
+    } else {
+      line = test;
+    }
+  }
+  if(line) lines.push(line);
+  return lines;
+}
+function loadImageEl(src){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+function drawRoundedRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.arcTo(x+w, y, x+w, y+h, r);
+  ctx.arcTo(x+w, y+h, x, y+h, r);
+  ctx.arcTo(x, y+h, x, y, r);
+  ctx.arcTo(x, y, x+w, y, r);
+  ctx.closePath();
+}
+
+/* ---------------- ORDER IMAGE GENERATION ---------------- */
+async function generateOrderImageBlob(orderNo){
+  const items = allItemsFlat();
+  const entries = Object.entries(cart).filter(([id]) => items[id]);
+  const note = document.getElementById("orderNote").value.trim();
+  const cssWidth = 600;
+  const lineHeight = 34;
+  const headerHeight = note ? 210 : 180;
+  const footerHeight = 90;
+  const cssHeight = headerHeight + entries.length*lineHeight + footerHeight;
+
+  // Render at 2x for crisp text on high-DPI phone screens.
+  const scale = 2;
+  const canvas = document.getElementById("orderCanvas");
+  canvas.width = cssWidth * scale; canvas.height = cssHeight * scale;
+  canvas.style.width = cssWidth + "px"; canvas.style.height = cssHeight + "px";
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(scale, 0, 0, scale, 0, 0);
+  const width = cssWidth, height = cssHeight;
+
+  ctx.fillStyle = "#FBF5E6"; ctx.fillRect(0,0,width,height);
+  ctx.strokeStyle = "#201A10"; ctx.lineWidth = 6;
+  ctx.strokeRect(3,3,width-6,height-6);
+
+  ctx.fillStyle = "#201A10";
+  ctx.font = "bold 34px Georgia, serif";
+  ctx.textBaseline = "top";
+  ctx.fillText("Hungry Owl — New Order", 30, 30);
+
+  ctx.font = "bold 20px Arial";
+  ctx.fillStyle = "#B0453B";
+  ctx.textAlign = "right";
+  ctx.fillText(formatOrderNo(orderNo), width-30, 34);
+  ctx.textAlign = "left";
+
+  ctx.font = "16px Arial";
+  ctx.fillStyle = "#6b6142";
+  const now = new Date();
+  ctx.fillText(now.toLocaleString(), 30, 74);
+  if(note){
+    ctx.fillStyle = "#201A10";
+    ctx.font = "bold 18px Arial";
+    ctx.fillText("Name: " + fitText(ctx, note, width-60), 30, 100);
+  }
+
+  ctx.strokeStyle = "#C7AD70";
+  ctx.setLineDash([4,4]);
+  ctx.beginPath();
+  ctx.moveTo(30, headerHeight-16); ctx.lineTo(width-30, headerHeight-16);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  let y = headerHeight;
+  ctx.font = "20px Arial";
+  entries.forEach(([id, qty]) => {
+    const it = items[id];
+    const priceStr = money(it.price*qty);
+    ctx.font = "20px Arial";
+    const priceWidth = ctx.measureText(priceStr).width;
+    ctx.fillStyle = "#201A10";
+    ctx.textAlign = "left";
+    ctx.fillText(fitText(ctx, `${qty} × ${it.name}`, width-60-priceWidth-16), 30, y+6);
+    ctx.textAlign = "right";
+    ctx.fillText(priceStr, width-30, y+6);
+    y += lineHeight;
+  });
+
+  ctx.strokeStyle = "#201A10";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(30, y+10); ctx.lineTo(width-30, y+10);
+  ctx.stroke();
+
+  ctx.font = "bold 26px Georgia, serif";
+  ctx.textAlign = "left";
+  ctx.fillText("Total", 30, y+28);
+  ctx.textAlign = "right";
+  ctx.fillText(money(cartTotal()), width-30, y+28);
+
+  return new Promise(resolve => canvas.toBlob((blob) => resolve(blob), "image/png"));
+}
+
+/* ---------------- DOWNLOAD FULL MENU AS IMAGE ---------------- */
+async function generateFullMenuImageBlob(){
+  const cfg = await loadSiteConfig();
+  const cssWidth = 640;
+  const padding = 32;
+  const lineHeight = 30;
+  const sectionGap = 22;
+  const sectionTitleGap = 12;
+
+  // Use an off-screen canvas at device-pixel-ratio-ish scale (2x) so the
+  // downloaded PNG is crisp instead of blurry when viewed/printed at size.
+  const scale = 2;
+
+  // Pass 1: a scratch canvas purely for text measurement (CSS pixel units).
+  const measureCanvas = document.createElement("canvas");
+  const mctx = measureCanvas.getContext("2d");
+
+  const brandName = cfg.brandName || "Menu";
+  const tagline = cfg.tagline || "";
+  const hasLogo = !!cfg.logoImage;
+  const logoSize = 64;
+  const titleAreaX = padding + (hasLogo ? logoSize + 16 : 0);
+
+  // Auto-shrink the title font so long shop names still fit on one line.
+  let titleFont = 40;
+  mctx.font = `bold ${titleFont}px Georgia, serif`;
+  const titleMaxWidth = cssWidth - titleAreaX - padding - (cfg.phone ? 140 : 0);
+  while(titleFont > 22 && mctx.measureText(brandName).width > titleMaxWidth){
+    titleFont -= 2;
+    mctx.font = `bold ${titleFont}px Georgia, serif`;
+  }
+
+  mctx.font = "18px Arial";
+  const taglineLines = tagline ? wrapText(mctx, tagline, cssWidth - titleAreaX - padding, 2) : [];
+
+  // Pre-wrap item names so we know exact line counts before drawing.
+  mctx.font = "19px Arial";
+  const priceColWidth = 90;
+  const itemNameMaxWidth = cssWidth - padding*2 - 20 - priceColWidth;
+  const sectionLayouts = menu.sections.map(sec => {
+    const items = sec.items.length ? sec.items.map(it => {
+      mctx.font = "19px Arial";
+      const priceStr = money(it.price);
+      const lines = wrapText(mctx, it.name, itemNameMaxWidth, 2);
+      return { name: it.name, priceStr, lines };
+    }) : [{ placeholder: true, lines: ["No items yet"] }];
+    const itemLines = items.reduce((sum, it) => sum + it.lines.length, 0);
+    return { name: sec.name, items, itemLines };
+  });
+
+  const headerHeight = 60 + titleFont + 14 + (taglineLines.length * 24) + 26;
+  const contentHeight = sectionLayouts.reduce((sum, sec) =>
+    sum + sectionTitleGap + 28 + (sec.itemLines * lineHeight) + sectionGap, 0);
+  const footerHeight = 46;
+  const cssHeight = Math.round(headerHeight + contentHeight + footerHeight + padding);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = cssWidth * scale;
+  canvas.height = cssHeight * scale;
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(scale, 0, 0, scale, 0, 0);
+  const width = cssWidth, height = cssHeight;
+
+  // Background + border
+  ctx.fillStyle = "#FBF5E6"; ctx.fillRect(0,0,width,height);
+  ctx.strokeStyle = "#201A10"; ctx.lineWidth = 6;
+  ctx.strokeRect(3,3,width-6,height-6);
+  ctx.strokeStyle = "#D9A62E"; ctx.lineWidth = 1.5;
+  ctx.strokeRect(10,10,width-20,height-20);
+
+  // Logo
+  if(hasLogo){
+    try{
+      const img = await loadImageEl(cfg.logoImage);
+      ctx.save();
+      drawRoundedRect(ctx, padding, padding, logoSize, logoSize, logoSize/2);
+      ctx.clip();
+      ctx.drawImage(img, padding, padding, logoSize, logoSize);
+      ctx.restore();
+      ctx.strokeStyle = "#201A10"; ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.arc(padding+logoSize/2, padding+logoSize/2, logoSize/2, 0, Math.PI*2);
+      ctx.stroke();
+    }catch(e){ /* if the logo fails to load, just skip drawing it */ }
+  }
+
+  ctx.textBaseline = "top";
+  ctx.fillStyle = "#201A10";
+  ctx.font = `bold ${titleFont}px Georgia, serif`;
+  ctx.textAlign = "left";
+  ctx.fillText(brandName, titleAreaX, padding - 4);
+
+  let ty = padding + titleFont + 8;
+  ctx.font = "18px Arial";
+  ctx.fillStyle = "#8a7c58";
+  taglineLines.forEach(line => { ctx.fillText(line, titleAreaX, ty); ty += 24; });
+
+  if(cfg.phone){
+    ctx.textAlign = "right";
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "#201A10";
+    ctx.fillText("📞 " + cfg.phone, width-padding, padding);
+    ctx.textAlign = "left";
+  }
+
+  const dividerY = Math.max(padding + logoSize + 14, ty + 10);
+  ctx.strokeStyle = "#C7AD70";
+  ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(padding, dividerY); ctx.lineTo(width-padding, dividerY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  let y = dividerY + 26;
+  sectionLayouts.forEach(sec => {
+    ctx.font = "bold 23px Georgia, serif";
+    ctx.fillStyle = "#B0453B";
+    ctx.fillText(sec.name.toUpperCase(), padding, y);
+    y += 28 + sectionTitleGap - 12;
+
+    sec.items.forEach(it => {
+      if(it.placeholder){
+        ctx.font = "italic 17px Arial";
+        ctx.fillStyle = "#8a7c58";
+        ctx.fillText(it.lines[0], padding+10, y);
+        y += lineHeight;
+        return;
+      }
+      ctx.font = "19px Arial";
+      ctx.fillStyle = "#201A10";
+      // price sits beside the first line only
+      ctx.textAlign = "right";
+      ctx.fillText(it.priceStr, width-padding, y);
+      ctx.textAlign = "left";
+      it.lines.forEach((line, idx) => {
+        ctx.fillText(line, padding+10, y);
+        y += lineHeight;
+      });
+    });
+    y += sectionGap - 12;
+  });
+
+  // Footer
+  ctx.strokeStyle = "#C7AD70";
+  ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(padding, height-footerHeight+8); ctx.lineTo(width-padding, height-footerHeight+8); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.font = "italic 15px Arial";
+  ctx.fillStyle = "#8a7c58";
+  ctx.textAlign = "center";
+  ctx.fillText("Prices may change without notice", width/2, height-footerHeight+22);
+  ctx.textAlign = "left";
+
+  return new Promise(resolve => canvas.toBlob(blob => resolve(blob), "image/png"));
+}
+
+document.getElementById("downloadMenuFab").addEventListener("click", async () => {
+  showToast("Preparing menu image…");
+  try{
+    const blob = await generateFullMenuImageBlob();
+    downloadBlob(blob, "menu.png");
+    showToast("Menu downloaded");
+  }catch(e){
+    showToast("Couldn't generate the menu image");
+  }
+});
+
+/* ---------------- TELEGRAM CONFIG ---------------- */
+const TG_CONFIG_KEY = "telegram-config";
+
+async function loadTelegramConfig(){
+  try{
+    const res = await window.storage.get(TG_CONFIG_KEY, true);
+    return res ? JSON.parse(res.value) : null;
+  }catch(e){ return null; }
+}
+async function saveTelegramConfig(cfg){
+  await window.storage.set(TG_CONFIG_KEY, JSON.stringify(cfg), true);
+}
+
+document.getElementById("saveTgBtn").addEventListener("click", async () => {
+  const botToken = document.getElementById("tgToken").value.trim();
+  const chatId = document.getElementById("tgChatId").value.trim();
+  await saveTelegramConfig({ botToken, chatId });
+  showToast("Telegram settings saved");
+});
+
+async function populateTelegramFields(){
+  const cfg = await loadTelegramConfig();
+  if(cfg){
+    document.getElementById("tgToken").value = cfg.botToken || "";
+    document.getElementById("tgChatId").value = cfg.chatId || "";
+  }
+}
+
+async function sendToTelegramBot(blob, cfg, caption){
+  const fd = new FormData();
+  fd.append("chat_id", cfg.chatId);
+  fd.append("caption", caption.slice(0,1024));
+  fd.append("photo", blob, "order.png");
+  const res = await fetch(`https://api.telegram.org/bot${cfg.botToken}/sendPhoto`, { method: "POST", body: fd });
+  const data = await res.json().catch(() => ({ ok:false, description:"Invalid response" }));
+  if(!data.ok) throw new Error(data.description || "Telegram rejected the request");
+  return data;
+}
+
+function downloadBlob(blob, filename){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+
+document.getElementById("sendOrderBtn").addEventListener("click", async () => {
+  const btn = document.getElementById("sendOrderBtn");
+  const hint = document.getElementById("sendOrderHint");
+  const items = allItemsFlat();
+  const entries = Object.entries(cart).filter(([id]) => items[id]);
+  if(!entries.length) return;
+
+  const noteInput = document.getElementById("orderNote");
+  if(!noteInput.value.trim()){
+    hint.textContent = "⚠️ Please enter your name before sending the order.";
+    noteInput.focus();
+    noteInput.style.borderColor = "var(--red)";
+    return;
+  }
+  noteInput.style.borderColor = "";
+
+  btn.disabled = true;
+  const originalText = btn.textContent;
+  btn.textContent = "Preparing order…";
+  hint.textContent = "";
+
+  try{
+    btn.textContent = "Assigning order number…";
+    const orderNo = await getNextOrderNumber();
+    const orderLabel = formatOrderNo(orderNo);
+
+    btn.textContent = "Preparing order…";
+    const blob = await generateOrderImageBlob(orderNo);
+    const preview = document.getElementById("orderCanvasPreview");
+    preview.src = URL.createObjectURL(blob);
+    preview.style.display = "block";
+
+    const note = document.getElementById("orderNote").value.trim();
+    const captionLines = entries.map(([id,qty]) => `${qty} × ${items[id].name}`);
+    const caption = `Order ${orderLabel} — ${new Date().toLocaleString()}\nFrom Hungry Owl menu${note ? " ("+note+")" : ""}:\n${captionLines.join("\n")}\nTotal: ${money(cartTotal())}`;
+
+    const cfg = await loadTelegramConfig();
+    if(cfg && cfg.botToken && cfg.chatId){
+      btn.textContent = "Sending to Telegram…";
+      try{
+        await sendToTelegramBot(blob, cfg, caption);
+        hint.textContent = `✅ Order ${orderLabel} sent! The shop has received it on Telegram.`;
+        cart = {};
+        renderPublicMenu(); updateCartFab();
+        btn.textContent = originalText;
+        btn.disabled = false;
+        return;
+      }catch(err){
+        hint.textContent = "Couldn't reach Telegram automatically (" + err.message + "). Trying another way to send it…";
+      }
+    }
+
+    // Fallback: native share sheet (lets the customer pick Telegram themselves)
+    const file = new File([blob], `hungry-owl-order-${orderLabel.replace('#','')}.png`, { type: "image/png" });
+    if(navigator.canShare && navigator.canShare({ files: [file] })){
+      btn.textContent = "Opening share sheet…";
+      try{
+        await navigator.share({ files: [file], title: `Hungry Owl Order ${orderLabel}`, text: caption });
+        hint.textContent = `✅ Order ${orderLabel} shared — send it to the shop's Telegram to complete your order.`;
+        cart = {};
+        renderPublicMenu(); updateCartFab();
+        btn.textContent = originalText;
+        btn.disabled = false;
+        return;
+      }catch(err){
+        if(err.name === "AbortError"){
+          hint.textContent = "Share cancelled — your order is still saved here, tap Send Order when ready.";
+          btn.textContent = originalText;
+          btn.disabled = false;
+          return;
+        }
+      }
+    }
+
+    // Final fallback: this device/browser won't let us hand the image straight
+    // to another app (native share isn't available in this sandboxed view), so
+    // save the image and make the next step as close to one-tap as possible.
+    downloadBlob(blob, `hungry-owl-order-${orderLabel.replace('#','')}.png`);
+    hint.innerHTML = `📥 Order ${orderLabel} image saved to your device.<br>Tap a button below to open the app, then attach the image you just saved.`;
+
+    const encodedCaption = encodeURIComponent(caption);
+    document.getElementById("openWhatsappBtn").href = `https://wa.me/?text=${encodedCaption}`;
+    document.getElementById("openTelegramBtn").href = `https://t.me/share/url?url=&text=${encodedCaption}`;
+    document.getElementById("shareFallbackActions").style.display = "flex";
+
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }catch(err){
+    hint.textContent = "Something went wrong generating the order: " + err.message;
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }
+});
+
+/* ---------------- ADMIN PANEL ---------------- */
+function renderAdmin(){
+  const wrap = document.getElementById("adminSections");
+  wrap.innerHTML = menu.sections.map((sec, sIdx) => `
+    <div class="admin-section-card" data-section="${sec.id}">
+      <div class="admin-section-head">
+        <span class="drag-handle drag-handle-section" title="Drag to reorder category">⠿</span>
+        <button class="icon-btn ghost" data-act="sec-up" data-sid="${sec.id}" ${sIdx===0?'disabled':''}>↑</button>
+        <button class="icon-btn ghost" data-act="sec-down" data-sid="${sec.id}" ${sIdx===menu.sections.length-1?'disabled':''}>↓</button>
+        <input type="text" value="${escapeHtml(sec.name)}" data-act="sec-name" data-sid="${sec.id}" placeholder="Section name">
+        <button class="icon-btn danger" data-act="sec-del" data-sid="${sec.id}" title="Delete section">🗑</button>
+      </div>
+      <div class="admin-items-list" data-items-of="${sec.id}">
+      ${sec.items.map((it, iIdx) => `
+        <div class="admin-item-row" data-item="${it.id}">
+          <span class="drag-handle drag-handle-item" title="Drag to reorder item">⠿</span>
+          <button class="icon-btn ghost" data-act="item-up" data-sid="${sec.id}" data-iid="${it.id}" ${iIdx===0?'disabled':''}>↑</button>
+          <button class="icon-btn ghost" data-act="item-down" data-sid="${sec.id}" data-iid="${it.id}" ${iIdx===sec.items.length-1?'disabled':''}>↓</button>
+          <input type="text" value="${escapeHtml(it.name)}" data-act="item-name" data-sid="${sec.id}" data-iid="${it.id}" placeholder="Item name">
+          <input type="number" value="${it.price}" min="0" data-act="item-price" data-sid="${sec.id}" data-iid="${it.id}" placeholder="₹">
+          <button class="icon-btn danger" data-act="item-del" data-sid="${sec.id}" data-iid="${it.id}" title="Remove item">✕</button>
+        </div>
+      `).join("")}
+      </div>
+      <button class="add-item-btn" data-act="item-add" data-sid="${sec.id}">+ Add item to “${escapeHtml(sec.name)}”</button>
+    </div>
+  `).join("") || `<p class="hint">No sections yet — add one above to get started.</p>`;
+}
+
+function findSection(sid){ return menu.sections.find(s => s.id === sid); }
+function findItem(sid, iid){ return findSection(sid).items.find(i => i.id === iid); }
+
+/* ---------------- DRAG-TO-REORDER (categories & items) ---------------- */
+/* Pointer-events based so it works with touch (phone) as well as mouse,
+   unlike native HTML5 drag-and-drop which iOS Safari doesn't support. */
+(function setupDragReorder(){
+  const root = document.getElementById("adminSections");
+  let dragEl = null, placeholder = null, startY = 0, elStartTop = 0;
+  let mode = null; // "section" | "item"
+  let listEl = null, itemSelector = null, sid = null;
+
+  function siblingsOf(container, selector){
+    return Array.from(container.children).filter(el => el.matches(selector));
+  }
+
+  root.addEventListener("pointerdown", (e) => {
+    const sectionHandle = e.target.closest(".drag-handle-section");
+    const itemHandle = e.target.closest(".drag-handle-item");
+    if(!sectionHandle && !itemHandle) return;
+
+    if(sectionHandle){
+      dragEl = sectionHandle.closest(".admin-section-card");
+      listEl = root;
+      itemSelector = ".admin-section-card";
+      mode = "section";
+      sid = null;
+    } else {
+      dragEl = itemHandle.closest(".admin-item-row");
+      listEl = itemHandle.closest(".admin-items-list");
+      itemSelector = ".admin-item-row";
+      mode = "item";
+      sid = listEl ? listEl.dataset.itemsOf : null;
+    }
+    if(!dragEl || !listEl) { dragEl = null; return; }
+
+    e.preventDefault();
+    const rect = dragEl.getBoundingClientRect();
+    startY = e.clientY;
+    elStartTop = rect.top;
+
+    placeholder = document.createElement("div");
+    placeholder.className = "drag-placeholder" + (mode === "item" ? " item-placeholder" : "");
+    placeholder.style.height = rect.height + "px";
+    dragEl.after(placeholder);
+
+    dragEl.style.position = "fixed";
+    dragEl.style.top = rect.top + "px";
+    dragEl.style.left = rect.left + "px";
+    dragEl.style.width = rect.width + "px";
+    dragEl.style.zIndex = 999;
+    dragEl.style.pointerEvents = "none";
+    dragEl.classList.add("dragging-item");
+    document.body.style.userSelect = "none";
+
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+  });
+
+  function onMove(e){
+    if(!dragEl) return;
+    const dy = e.clientY - startY;
+    dragEl.style.top = (elStartTop + dy) + "px";
+
+    const siblings = siblingsOf(listEl, itemSelector).filter(el => el !== dragEl);
+    let placed = false;
+    for(const sib of siblings){
+      if(sib === placeholder) continue;
+      const rect = sib.getBoundingClientRect();
+      const mid = rect.top + rect.height / 2;
+      if(e.clientY < mid){
+        listEl.insertBefore(placeholder, sib);
+        placed = true;
+        break;
+      }
+    }
+    if(!placed) listEl.appendChild(placeholder);
+  }
+
+  async function onUp(){
+    if(!dragEl) return;
+    listEl.insertBefore(dragEl, placeholder);
+    placeholder.remove();
+    placeholder = null;
+
+    dragEl.style.position = "";
+    dragEl.style.top = "";
+    dragEl.style.left = "";
+    dragEl.style.width = "";
+    dragEl.style.zIndex = "";
+    dragEl.style.pointerEvents = "";
+    dragEl.classList.remove("dragging-item");
+    document.body.style.userSelect = "";
+
+    window.removeEventListener("pointermove", onMove);
+    window.removeEventListener("pointerup", onUp);
+
+    if(mode === "section"){
+      const ids = siblingsOf(listEl, itemSelector).map(el => el.dataset.section);
+      menu.sections.sort((a,b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+    } else {
+      const ids = siblingsOf(listEl, itemSelector).map(el => el.dataset.item);
+      const sec = findSection(sid);
+      if(sec) sec.items.sort((a,b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+    }
+
+    dragEl = null; listEl = null; itemSelector = null; mode = null; sid = null;
+
+    renderAdmin();
+    renderPublicMenu();
+    await saveMenu();
+    showToast("Order updated");
+  }
+})();
+
+document.getElementById("adminSections").addEventListener("click", async (e) => {
+  const btn = e.target.closest("button[data-act]");
+  if(!btn) return;
+  const act = btn.dataset.act, sid = btn.dataset.sid, iid = btn.dataset.iid;
+
+  // tap-twice confirm pattern for destructive actions (no confirm() dialogs allowed)
+  if(act === "sec-del" || act === "item-del"){
+    if(!btn.classList.contains("confirming")){
+      btn.classList.add("confirming");
+      btn.textContent = "✓?";
+      showToast("Tap again to confirm delete");
+      setTimeout(() => { btn.classList.remove("confirming"); btn.textContent = act==="sec-del" ? "🗑" : "✕"; }, 2500);
+      return;
+    }
+  }
+
+  if(act === "sec-del"){
+    menu.sections = menu.sections.filter(s => s.id !== sid);
+  }
+  else if(act === "sec-up" || act === "sec-down"){
+    const idx = menu.sections.findIndex(s => s.id === sid);
+    const swap = act === "sec-up" ? idx-1 : idx+1;
+    [menu.sections[idx], menu.sections[swap]] = [menu.sections[swap], menu.sections[idx]];
+  }
+  else if(act === "item-add"){
+    findSection(sid).items.push({ id: uid("i"), name: "New item", price: 0 });
+  }
+  else if(act === "item-del"){
+    const sec = findSection(sid);
+    sec.items = sec.items.filter(i => i.id !== iid);
+  }
+  else if(act === "item-up" || act === "item-down"){
+    const sec = findSection(sid);
+    const idx = sec.items.findIndex(i => i.id === iid);
+    const swap = act === "item-up" ? idx-1 : idx+1;
+    [sec.items[idx], sec.items[swap]] = [sec.items[swap], sec.items[idx]];
+  }
+  else return;
+
+  renderAdmin();
+  renderPublicMenu();
+  await saveMenu();
+});
+
+document.getElementById("adminSections").addEventListener("input", async (e) => {
+  const el = e.target.closest("input[data-act]");
+  if(!el) return;
+  const act = el.dataset.act, sid = el.dataset.sid, iid = el.dataset.iid;
+
+  if(act === "sec-name"){
+    findSection(sid).name = el.value;
+  }else if(act === "item-name"){
+    findItem(sid, iid).name = el.value;
+  }else if(act === "item-price"){
+    findItem(sid, iid).price = Math.max(0, Number(el.value) || 0);
+  }else{
+    return;
+  }
+  renderPublicMenu();
+  await saveMenu();
+});
+
+document.getElementById("addSectionBtn").addEventListener("click", async () => {
+  const input = document.getElementById("newSectionInput");
+  const name = input.value.trim();
+  if(!name){ showToast("Type a section name first"); return; }
+  menu.sections.push({ id: uid("s"), name, items: [] });
+  input.value = "";
+  renderAdmin();
+  renderPublicMenu();
+  await saveMenu();
+  showToast("Section added");
+});
+document.getElementById("newSectionInput").addEventListener("keydown", (e) => {
+  if(e.key === "Enter") document.getElementById("addSectionBtn").click();
+});
+
+document.getElementById("resetBtn").addEventListener("click", async function(){
+  if(!this.classList.contains("confirming")){
+    this.classList.add("confirming");
+    this.textContent = "Tap again to confirm reset";
+    showToast("Tap again to confirm reset");
+    setTimeout(() => { this.classList.remove("confirming"); this.textContent = "Reset to Default"; }, 2500);
+    return;
+  }
+  this.classList.remove("confirming");
+  this.textContent = "Reset to Default";
+  menu = structuredClone(DEFAULT_MENU);
+  renderAdmin();
+  renderPublicMenu();
+  await saveMenu();
+  showToast("Menu reset");
+});
+
+/* ---------------- PIN KEYPAD (replaces prompt()) ---------------- */
+const pinBackdrop = document.getElementById("pinBackdrop");
+const pinDotsEl = document.getElementById("pinDots");
+const pinKeypadEl = document.getElementById("pinKeypad");
+
+function renderPinDots(){
+  pinDotsEl.innerHTML = "";
+  for(let i=0;i<ADMIN_PIN.length;i++){
+    const dot = document.createElement("span");
+    if(i < pinEntry.length) dot.classList.add("filled");
+    pinDotsEl.appendChild(dot);
+  }
+}
+function buildKeypad(){
+  pinKeypadEl.innerHTML = "";
+  const keys = ["1","2","3","4","5","6","7","8","9","⌫","0","OK"];
+  keys.forEach(k => {
+    const b = document.createElement("button");
+    b.textContent = k;
+    b.addEventListener("click", () => onPinKey(k));
+    pinKeypadEl.appendChild(b);
+  });
+}
+function onPinKey(k){
+  if(k === "⌫"){ pinEntry = pinEntry.slice(0,-1); renderPinDots(); return; }
+  if(k === "OK"){ checkPin(); return; }
+  if(pinEntry.length < ADMIN_PIN.length){
+    pinEntry += k;
+    renderPinDots();
+    if(pinEntry.length === ADMIN_PIN.length) checkPin();
+  }
+}
+async function checkPin(){
+  if(pinEntry === ADMIN_PIN){
+    isAdmin = true;
+    pinEntry = "";
+    pinBackdrop.classList.remove("open");
+    renderAdmin();
+    populateTelegramFields();
+    populateBrandFields(await loadSiteConfig());
+    document.getElementById("adminBackdrop").classList.add("open");
+  }else{
+    showToast("Wrong PIN, try again");
+    pinEntry = "";
+    renderPinDots();
+  }
+}
+buildKeypad();
+
+document.getElementById("adminFab").addEventListener("click", async () => {
+  if(isAdmin){
+    renderAdmin();
+    populateTelegramFields();
+    populateBrandFields(await loadSiteConfig());
+    document.getElementById("adminBackdrop").classList.add("open");
+    return;
+  }
+  pinEntry = "";
+  renderPinDots();
+  pinBackdrop.classList.add("open");
+});
+document.getElementById("pinClose").addEventListener("click", () => pinBackdrop.classList.remove("open"));
+pinBackdrop.addEventListener("click", (e) => { if(e.target === pinBackdrop) pinBackdrop.classList.remove("open"); });
+
+const adminBackdrop = document.getElementById("adminBackdrop");
+document.getElementById("adminClose").addEventListener("click", () => adminBackdrop.classList.remove("open"));
+adminBackdrop.addEventListener("click", (e) => { if(e.target === adminBackdrop) adminBackdrop.classList.remove("open"); });
+
+/* ---------------- QR MODAL ---------------- */
+const qrBackdrop = document.getElementById("qrBackdrop");
+document.getElementById("qrFab").addEventListener("click", () => {
+  const base = window.location.href.split("#")[0].split("?")[0];
+  const url = base + "?view=customer";
+  document.getElementById("qrBox").innerHTML = renderQRCodeSVG(url, 220);
+  document.getElementById("qrUrl").textContent = url;
+  const isDraft = url.startsWith("blob:") || url.includes("localhost") || !url.startsWith("http");
+  document.getElementById("qrHint").textContent = isDraft
+    ? "This link only works while you're previewing here. Publish/share this artifact first so it gets a permanent link — then reopen this QR panel so the code points to that link."
+    : "This QR code opens a customer-only view — just the menu and ordering, with no \"Manage Menu\" or QR buttons visible. Print it for table tents; edits you make in \"Manage Menu\" update instantly for everyone, including customer views already open.";
+  qrBackdrop.classList.add("open");
+});
+document.getElementById("qrClose").addEventListener("click", () => qrBackdrop.classList.remove("open"));
+qrBackdrop.addEventListener("click", (e) => { if(e.target === qrBackdrop) qrBackdrop.classList.remove("open"); });
+
+applyTheme();
+loadMenu();
+loadSiteConfig().then(applySiteConfig);
+</script>
+</body>
+</html>
