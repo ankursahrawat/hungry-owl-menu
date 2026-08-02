@@ -73,6 +73,18 @@ function applySiteConfig(cfg){
     }
   }
 
+  const bannerWrap = document.getElementById("announcementBanner");
+  const bannerText = document.getElementById("announcementText");
+  if(bannerWrap && bannerText){
+    const msg = (cfg.announcement || "").trim();
+    if(msg){
+      bannerText.textContent = msg;
+      bannerWrap.style.display = "flex";
+    } else {
+      bannerWrap.style.display = "none";
+    }
+  }
+
   const phoneLink = document.getElementById("brandPhone");
   const phoneNum = document.getElementById("brandPhoneNum");
   if(phoneLink && phoneNum){

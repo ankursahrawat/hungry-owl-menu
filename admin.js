@@ -116,11 +116,12 @@ document.getElementById("viewMenuBtn").addEventListener("click", () => {
 async function loadAndPopulateBranding(){
   let cfg;
   try{ cfg = await api.getSiteConfig(); }
-  catch(e){ cfg = { brandName:"", tagline:"", logoEmoji:"", logoImage:"", phone:"" }; }
+  catch(e){ cfg = { brandName:"", tagline:"", logoEmoji:"", logoImage:"", phone:"", announcement:"" }; }
   document.getElementById("cfgBrandName").value = cfg.brandName || "";
   document.getElementById("cfgTagline").value = cfg.tagline || "";
   document.getElementById("cfgLogoEmoji").value = cfg.logoEmoji || "";
   document.getElementById("cfgPhone").value = cfg.phone || "";
+  document.getElementById("cfgAnnouncement").value = cfg.announcement || "";
   uploadedLogoDraft = null;
   renderLogoPreview(cfg);
   window.__lastSiteConfig = cfg;
@@ -197,6 +198,7 @@ document.getElementById("saveBrandBtn").addEventListener("click", async () => {
     logoEmoji: document.getElementById("cfgLogoEmoji").value.trim(),
     phone: document.getElementById("cfgPhone").value.trim(),
     logoImage: uploadedLogoDraft !== null ? uploadedLogoDraft : existing.logoImage,
+    announcement: existing.announcement || "",
   };
   try{
     await api.saveSiteConfig(adminPin, cfg);
@@ -207,6 +209,26 @@ document.getElementById("saveBrandBtn").addEventListener("click", async () => {
     showToast("Branding saved");
   }catch(e){
     document.getElementById("logoHint").textContent = "Couldn't save: " + e.message;
+  }
+});
+
+document.getElementById("saveBannerBtn").addEventListener("click", async () => {
+  const existing = window.__lastSiteConfig || {};
+  const cfg = {
+    brandName: existing.brandName || "",
+    tagline: existing.tagline || "",
+    logoEmoji: existing.logoEmoji || "",
+    phone: existing.phone || "",
+    logoImage: existing.logoImage || "",
+    announcement: document.getElementById("cfgAnnouncement").value.trim(),
+  };
+  try{
+    await api.saveSiteConfig(adminPin, cfg);
+    window.__lastSiteConfig = cfg;
+    document.getElementById("bannerHint").textContent = "";
+    showToast(cfg.announcement ? "Banner saved" : "Banner cleared");
+  }catch(e){
+    document.getElementById("bannerHint").textContent = "Couldn't save: " + e.message;
   }
 });
 

@@ -45,6 +45,17 @@
   <div class="status-row" id="statusRow"></div>
 
   <div class="admin-section-card">
+    <div style="font-family:'Baloo 2',sans-serif; font-weight:700; font-size:1.05rem; margin-bottom:8px;">📢 Announcement Banner</div>
+    <p class="hint" style="margin-top:0;">Shows at the top of the customer page. Leave it blank to hide it — handy for "Closed today", "Wi-Fi password: ...", or special offers.</p>
+    <div class="field">
+      <label>Banner Message</label>
+      <textarea id="cfgAnnouncement" rows="2" placeholder="e.g. Closed today for a private event" style="width:100%; padding:12px; border-radius:10px; border:2px solid var(--line-soft); font-family:'Baloo 2',sans-serif; font-size:16px; background:var(--white); color:var(--ink); resize:vertical;"></textarea>
+    </div>
+    <button class="btn btn-small" id="saveBannerBtn">Save Banner</button>
+    <p class="hint" id="bannerHint" style="margin-top:10px;"></p>
+  </div>
+
+  <div class="admin-section-card">
     <div style="font-family:'Baloo 2',sans-serif; font-weight:700; font-size:1.05rem; margin-bottom:8px;">📱 QR Code for Customers</div>
     <p class="hint" style="margin-top:0;">This links to the customer-only ordering page — no admin controls are visible there.</p>
     <div id="qrBox" style="display:flex; justify-content:center; padding:14px; background:#fff; border-radius:14px; border:2px solid var(--line-soft);"></div>
