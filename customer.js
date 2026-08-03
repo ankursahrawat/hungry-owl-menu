@@ -98,7 +98,6 @@ function renderCatRail(){
     const target = `section-${sec.id}`;
     const active = prevActive ? target === prevActive : i === 0;
     return `<button class="cat-rail-btn${active?' active':''}" data-target="${target}">
-              <span class="cat-rail-icon">${pickCategoryIcon(sec.name)}</span>
               <span class="cat-rail-label">${escapeHtml(sec.name)}</span>
             </button>`;
   }).join("");
