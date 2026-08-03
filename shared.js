@@ -60,16 +60,7 @@ function applySiteConfig(cfg){
     } else if(cfg.logoEmoji && cfg.logoEmoji.trim()){
       logoArea.innerHTML = `<div class="logo-emoji">${escapeHtml(cfg.logoEmoji.trim())}</div>`;
     } else {
-      logoArea.innerHTML = `<svg class="owl" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <ellipse cx="50" cy="30" rx="26" ry="14" fill="#fff" stroke="#201A10" stroke-width="3"/>
-        <path d="M28 24 Q50 6 72 24" fill="#fff" stroke="#201A10" stroke-width="3"/>
-        <ellipse cx="50" cy="58" rx="30" ry="34" fill="#5B5A63" stroke="#201A10" stroke-width="3"/>
-        <circle cx="38" cy="52" r="11" fill="#fff" stroke="#201A10" stroke-width="3"/>
-        <circle cx="62" cy="52" r="11" fill="#fff" stroke="#201A10" stroke-width="3"/>
-        <circle cx="38" cy="52" r="4.5" fill="#201A10"/>
-        <circle cx="62" cy="52" r="4.5" fill="#201A10"/>
-        <path d="M50 58 L45 66 L55 66 Z" fill="#F0C24E" stroke="#201A10" stroke-width="2"/>
-      </svg>`;
+      logoArea.innerHTML = `<img class="owl" src="/hungry-owl-logo.svg" alt="Hungry Owl">`;
     }
   }
 

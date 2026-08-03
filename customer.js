@@ -1,7 +1,6 @@
 /* ---------------- STATE ---------------- */
 let menu = { sections: [] };
 let cart = {};
-let orderingMode = false;
 let sectionObserver = null;
 
 /* ---------------- LOAD + LIVE POLLING ---------------- */
@@ -36,7 +35,7 @@ function renderPublicMenu(){
   const area = document.getElementById("menuArea");
   if(!menu.sections.length){
     area.innerHTML = `<div class="empty-note">The menu is empty right now — check back soon.</div>`;
-    renderCatNav();
+    renderCatRail();
     return;
   }
   // Preserve scroll position across re-renders triggered by polling.
@@ -48,16 +47,13 @@ function renderPublicMenu(){
       ${ sec.items.length
           ? sec.items.map(it => {
               const qty = cart[it.id] || 0;
-              let control = "";
-              if(orderingMode){
-                control = qty > 0
-                  ? `<div class="item-qty-stepper">
-                       <button data-cart-act="dec" data-iid="${it.id}">−</button>
-                       <span class="qty-num">${qty}</span>
-                       <button data-cart-act="inc" data-iid="${it.id}">+</button>
-                     </div>`
-                  : `<button class="item-add-btn" data-cart-act="inc" data-iid="${it.id}">+</button>`;
-              }
+              const control = qty > 0
+                ? `<div class="item-qty-stepper">
+                     <button data-cart-act="dec" data-iid="${it.id}">−</button>
+                     <span class="qty-num">${qty}</span>
+                     <button data-cart-act="inc" data-iid="${it.id}">+</button>
+                   </div>`
+                : `<button class="item-add-btn" data-cart-act="inc" data-iid="${it.id}">Add <span>+</span></button>`;
               return `
             <div class="item-row">
               <span class="item-name">${escapeHtml(it.name)}</span>
@@ -70,29 +66,50 @@ function renderPublicMenu(){
       }
     </div>
   `).join("");
-  renderCatNav();
+  renderCatRail();
   observeSections();
 }
 
-/* ---------------- CATEGORY QUICK-NAV ---------------- */
-function renderCatNav(){
-  const nav = document.getElementById("catNav");
-  if(!menu.sections.length){ nav.innerHTML = ""; return; }
-  const prevActive = nav.querySelector(".cat-pill.active")?.dataset.target;
-  nav.innerHTML = menu.sections.map((sec, i) => {
+/* ---------------- CATEGORY ICON RAIL ---------------- */
+const CATEGORY_ICONS = [
+  { match: /sandwich|grill|toast/i, icon: "🥪" },
+  { match: /pasta|macroni|macaroni|noodle/i, icon: "🍝" },
+  { match: /maggi/i, icon: "🍜" },
+  { match: /chai|coffee|tea|beverage|drink|shake|juice/i, icon: "☕" },
+  { match: /bun|bread|pastry|bakery/i, icon: "🥐" },
+  { match: /roll|wrap/i, icon: "🌯" },
+  { match: /pizza/i, icon: "🍕" },
+  { match: /burger/i, icon: "🍔" },
+  { match: /rice|biryani/i, icon: "🍚" },
+  { match: /dessert|sweet|ice ?cream/i, icon: "🍨" },
+  { match: /soup/i, icon: "🥣" },
+  { match: /egg/i, icon: "🍳" },
+];
+function pickCategoryIcon(name){
+  const hit = CATEGORY_ICONS.find(c => c.match.test(name));
+  return hit ? hit.icon : "🍽️";
+}
+
+function renderCatRail(){
+  const rail = document.getElementById("catRail");
+  if(!menu.sections.length){ rail.innerHTML = ""; return; }
+  const prevActive = rail.querySelector(".cat-rail-btn.active")?.dataset.target;
+  rail.innerHTML = menu.sections.map((sec, i) => {
     const target = `section-${sec.id}`;
     const active = prevActive ? target === prevActive : i === 0;
-    return `<button class="cat-pill${active?' active':''}" data-target="${target}">${escapeHtml(sec.name)}</button>`;
+    return `<button class="cat-rail-btn${active?' active':''}" data-target="${target}">
+              <span class="cat-rail-icon">${pickCategoryIcon(sec.name)}</span>
+              <span class="cat-rail-label">${escapeHtml(sec.name)}</span>
+            </button>`;
   }).join("");
 }
 
-document.getElementById("catNav").addEventListener("click", (e) => {
-  const btn = e.target.closest(".cat-pill");
+document.getElementById("catRail").addEventListener("click", (e) => {
+  const btn = e.target.closest(".cat-rail-btn");
   if(!btn) return;
   const target = document.getElementById(btn.dataset.target);
   if(target){
-    const navHeight = document.getElementById("catNav").offsetHeight + 10;
-    const y = target.getBoundingClientRect().top + window.scrollY - navHeight;
+    const y = target.getBoundingClientRect().top + window.scrollY - 14;
     window.scrollTo({ top: y, behavior: "smooth" });
   }
 });
@@ -105,7 +122,7 @@ function observeSections(){
     entries.forEach(entry => {
       if(entry.isIntersecting){
         const id = entry.target.id;
-        document.querySelectorAll(".cat-pill").forEach(p => {
+        document.querySelectorAll(".cat-rail-btn").forEach(p => {
           p.classList.toggle("active", p.dataset.target === id);
         });
       }
@@ -113,24 +130,6 @@ function observeSections(){
   }, { rootMargin: "-120px 0px -70% 0px", threshold: 0 });
   sections.forEach(s => sectionObserver.observe(s));
 }
-
-function positionCatNav(){
-  const bar = document.querySelector(".order-here-bar");
-  const nav = document.getElementById("catNav");
-  if(bar && nav) nav.style.top = bar.offsetHeight + "px";
-}
-window.addEventListener("resize", positionCatNav);
-
-/* ---------------- ORDER HERE TOGGLE ---------------- */
-const orderHereBtn = document.getElementById("orderHereBtn");
-orderHereBtn.addEventListener("click", () => {
-  orderingMode = !orderingMode;
-  orderHereBtn.classList.toggle("active", orderingMode);
-  orderHereBtn.textContent = orderingMode ? "✅ Ordering Mode — tap items to add" : "🍽️ Order Here";
-  renderPublicMenu();
-  updateCartFab();
-  positionCatNav();
-});
 
 /* ---------------- CART ---------------- */
 function allItemsFlat(){
@@ -145,10 +144,13 @@ function cartTotal(){
 }
 function updateCartFab(){
   const fab = document.getElementById("cartFab");
-  const badge = document.getElementById("cartBadge");
   const count = cartCount();
-  badge.textContent = count;
-  fab.style.display = count > 0 ? "flex" : "none";
+  if(count > 0){
+    fab.innerHTML = `<span class="cart-fab-main">🛒 ${count} item${count>1?'s':''} · ${money(cartTotal())}</span><span class="cart-fab-sub">CHECKOUT →</span>`;
+    fab.style.display = "flex";
+  } else {
+    fab.style.display = "none";
+  }
 }
 
 document.getElementById("menuArea").addEventListener("click", (e) => {
@@ -397,4 +399,3 @@ document.getElementById("sendOrderBtn").addEventListener("click", async () => {
 /* ---------------- INIT ---------------- */
 loadMenu();
 loadBranding();
-positionCatNav();
