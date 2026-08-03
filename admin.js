@@ -67,7 +67,7 @@ async function renderStatus(){
     const s = await api.getStatus();
     row.innerHTML = [
       chip(s.databaseConfigured, "Database"),
-      chip(s.telegramConfigured, "Telegram"),
+      chip(s.whatsappConfigured, "WhatsApp"),
     ].join("");
   }catch(e){
     row.innerHTML = `<span class="status-chip warn">⚠️ Couldn't check status</span>`;
@@ -116,7 +116,8 @@ document.getElementById("viewMenuBtn").addEventListener("click", () => {
 async function loadAndPopulateBranding(){
   let cfg;
   try{ cfg = await api.getSiteConfig(); }
-  catch(e){ cfg = { brandName:"", tagline:"", logoEmoji:"", logoImage:"", phone:"", announcement:"" }; }
+  catch(e){ cfg = { brandName:"", tagline:"", logoEmoji:"", logoImage:"", phone:"", announcement:"", bestsellerIds:[] }; }
+  window.__bestsellerIds = Array.isArray(cfg.bestsellerIds) ? cfg.bestsellerIds : [];
   document.getElementById("cfgBrandName").value = cfg.brandName || "";
   document.getElementById("cfgTagline").value = cfg.tagline || "";
   document.getElementById("cfgLogoEmoji").value = cfg.logoEmoji || "";
@@ -384,9 +385,33 @@ document.getElementById("downloadMenuBtn").addEventListener("click", async () =>
 });
 
 /* ---------------- MENU EDITOR ---------------- */
+// Default template emojis per category keyword
+const ITEM_TEMPLATES = {
+  sandwich: ["🥪","🥙","🫓","🥗","🧆"],
+  pasta: ["🍝","🍜","🫕","🍲","🥘"],
+  maggi: ["🍜","🍲","🥣","🫕","🍝"],
+  chai: ["☕","🫖","🧉","🥤","🍵"],
+  coffee: ["☕","🧋","🫖","🍵","🥤"],
+  bun: ["🥐","🥖","🧁","🥨","🍞"],
+  egg: ["🍳","🥚","🥗","🍱","🥞"],
+  burger: ["🍔","🫔","🥙","🍟","🌮"],
+  pizza: ["🍕","🫓","🥙","🍔","🌮"],
+  default: ["🍽️","🥗","🍲","🥘","🫕"],
+};
+function getTemplates(sectionName){
+  const n = sectionName.toLowerCase();
+  for(const [key, arr] of Object.entries(ITEM_TEMPLATES)){
+    if(key !== "default" && n.includes(key)) return arr;
+  }
+  return ITEM_TEMPLATES.default;
+}
+
 function renderAdmin(){
   const wrap = document.getElementById("adminSections");
-  wrap.innerHTML = menu.sections.map((sec, sIdx) => `
+  const bestSet = new Set(window.__bestsellerIds || []);
+  wrap.innerHTML = menu.sections.map((sec, sIdx) => {
+    const templates = getTemplates(sec.name);
+    return `
     <div class="admin-section-card" data-section="${sec.id}">
       <div class="admin-section-head">
         <span class="drag-handle drag-handle-section" title="Drag to reorder category">⠿</span>
@@ -396,20 +421,32 @@ function renderAdmin(){
         <button class="icon-btn danger" data-act="sec-del" data-sid="${sec.id}" title="Delete section">🗑</button>
       </div>
       <div class="admin-items-list" data-items-of="${sec.id}">
-      ${sec.items.map((it, iIdx) => `
+      ${sec.items.map((it, iIdx) => {
+        const isBest = bestSet.has(it.id);
+        const thumb = it.image
+          ? `<img class="admin-item-thumb" src="${it.image}" alt="">`
+          : `<div class="admin-item-thumb admin-item-thumb--empty">📷</div>`;
+        return `
         <div class="admin-item-row" data-item="${it.id}">
           <span class="drag-handle drag-handle-item" title="Drag to reorder item">⠿</span>
           <button class="icon-btn ghost" data-act="item-up" data-sid="${sec.id}" data-iid="${it.id}" ${iIdx===0?'disabled':''}>↑</button>
           <button class="icon-btn ghost" data-act="item-down" data-sid="${sec.id}" data-iid="${it.id}" ${iIdx===sec.items.length-1?'disabled':''}>↓</button>
+          <div class="admin-item-image-wrap">
+            ${thumb}
+            <div class="admin-item-templates">${templates.map(t => `<button class="template-emoji-btn" data-act="item-img-template" data-sid="${sec.id}" data-iid="${it.id}" data-template="${t}">${t}</button>`).join("")}</div>
+            <label class="icon-btn ghost img-upload-label" title="Upload photo">📷<input type="file" accept="image/*" data-act="item-img-upload" data-sid="${sec.id}" data-iid="${it.id}" style="display:none;"></label>
+            ${it.image ? `<button class="icon-btn ghost" data-act="item-img-clear" data-sid="${sec.id}" data-iid="${it.id}" title="Remove image">✕</button>` : ""}
+          </div>
           <input type="text" value="${escapeHtml(it.name)}" data-act="item-name" data-sid="${sec.id}" data-iid="${it.id}" placeholder="Item name">
           <input type="number" value="${it.price}" min="0" data-act="item-price" data-sid="${sec.id}" data-iid="${it.id}" placeholder="₹">
+          <button class="icon-btn${isBest?' best-active':''}" data-act="item-best" data-sid="${sec.id}" data-iid="${it.id}" title="${isBest?'Remove bestseller':'Mark as bestseller'}">⭐</button>
           <button class="icon-btn danger" data-act="item-del" data-sid="${sec.id}" data-iid="${it.id}" title="Remove item">✕</button>
         </div>
-      `).join("")}
+      `}).join("")}
       </div>
-      <button class="add-item-btn" data-act="item-add" data-sid="${sec.id}">+ Add item to “${escapeHtml(sec.name)}”</button>
+      <button class="add-item-btn" data-act="item-add" data-sid="${sec.id}">+ Add item to "${escapeHtml(sec.name)}"</button>
     </div>
-  `).join("") || `<p class="hint">No sections yet — add one above to get started.</p>`;
+  `}).join("") || `<p class="hint">No sections yet — add one above to get started.</p>`;
 }
 function findSection(sid){ return menu.sections.find(s => s.id === sid); }
 function findItem(sid, iid){ return findSection(sid).items.find(i => i.id === iid); }
@@ -538,6 +575,45 @@ document.getElementById("adminSections").addEventListener("click", async (e) => 
     const idx = sec.items.findIndex(i => i.id === iid);
     const swap = act === "item-up" ? idx-1 : idx+1;
     [sec.items[idx], sec.items[swap]] = [sec.items[swap], sec.items[idx]];
+  } else if(act === "item-best"){
+    // toggle bestseller
+    const ids = window.__bestsellerIds || [];
+    const idx = ids.indexOf(iid);
+    if(idx >= 0) ids.splice(idx, 1);
+    else ids.push(iid);
+    window.__bestsellerIds = ids;
+    // save to site config
+    const existing = window.__lastSiteConfig || {};
+    const cfg = { ...existing, bestsellerIds: ids };
+    try{
+      await api.saveSiteConfig(adminPin, cfg);
+      window.__lastSiteConfig = cfg;
+      showToast(idx >= 0 ? "Removed from bestsellers" : "Added to bestsellers ⭐");
+    }catch(err){ showToast("Couldn't save: " + err.message); }
+    renderAdmin();
+    return;
+  } else if(act === "item-img-template"){
+    const emoji = btn.dataset.template;
+    const it = findItem(sid, iid);
+    // Convert emoji to a small canvas data URL
+    const canvas = document.createElement("canvas");
+    canvas.width = 80; canvas.height = 80;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#FFF8E1";
+    ctx.fillRect(0,0,80,80);
+    ctx.font = "52px serif";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(emoji, 40, 44);
+    it.image = canvas.toDataURL("image/png");
+    renderAdmin();
+    await saveMenu();
+    showToast("Template image set");
+    return;
+  } else if(act === "item-img-clear"){
+    findItem(sid, iid).image = "";
+    renderAdmin();
+    await saveMenu();
+    return;
   } else return;
 
   renderAdmin();
@@ -553,6 +629,43 @@ document.getElementById("adminSections").addEventListener("input", async (e) => 
   else if(act === "item-price"){ findItem(sid, iid).price = Math.max(0, Number(el.value) || 0); }
   else return;
   await saveMenu();
+});
+
+document.getElementById("adminSections").addEventListener("change", async (e) => {
+  const input = e.target.closest("input[data-act='item-img-upload']");
+  if(!input) return;
+  const file = input.files[0];
+  if(!file) return;
+  try{
+    const dataUrl = await readAndCompressImage(file);
+    findItem(input.dataset.sid, input.dataset.iid).image = dataUrl;
+    renderAdmin();
+    await saveMenu();
+    showToast("Item photo saved");
+  }catch(err){ showToast("Couldn't use that image: " + err.message); }
+  input.value = "";
+});
+
+document.getElementById("resetOrderCounterBtn").addEventListener("click", async function(){
+  if(!this.classList.contains("confirming")){
+    this.classList.add("confirming");
+    this.textContent = "Tap again to confirm reset";
+    showToast("Tap again to confirm — this can't be undone");
+    setTimeout(() => {
+      this.classList.remove("confirming");
+      this.textContent = "Reset Order Counter to #1";
+    }, 2500);
+    return;
+  }
+  this.classList.remove("confirming");
+  this.textContent = "Reset Order Counter to #1";
+  try{
+    await api.resetOrderCounter(adminPin);
+    document.getElementById("orderCounterHint").textContent = "✅ Counter reset — next order will be #1.";
+    showToast("Order counter reset to #1");
+  }catch(err){
+    document.getElementById("orderCounterHint").textContent = "Couldn't reset: " + err.message;
+  }
 });
 
 document.getElementById("addSectionBtn").addEventListener("click", async () => {

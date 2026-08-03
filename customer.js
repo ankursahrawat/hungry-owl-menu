@@ -2,6 +2,7 @@
 let menu = { sections: [] };
 let cart = {};
 let sectionObserver = null;
+let bestsellerIds = [];      // populated from site config
 
 /* ---------------- LOAD + LIVE POLLING ---------------- */
 async function loadMenu(){
@@ -18,19 +19,68 @@ async function loadMenu(){
 async function loadBranding(){
   try{
     const cfg = await api.getSiteConfig();
+    bestsellerIds = Array.isArray(cfg.bestsellerIds) ? cfg.bestsellerIds : [];
     applySiteConfig(cfg);
+    renderContactBar(cfg);
   }catch(e){ /* keep defaults already in the HTML if this fails */ }
 }
 
 // Customers don't get push updates from the admin panel, so we poll
-// periodically and whenever the tab regains focus — close enough to
-// real-time for a small menu without needing WebSockets/infra.
+// periodically and whenever the tab regains focus.
 const POLL_MS = 15000;
 setInterval(() => { loadMenu(); loadBranding(); }, POLL_MS);
 document.addEventListener("visibilitychange", () => { if(!document.hidden){ loadMenu(); loadBranding(); } });
 window.addEventListener("focus", () => { loadMenu(); loadBranding(); });
 
+/* ---------------- CONTACT BAR ---------------- */
+const SHOP_PHONE = "919308006900"; // always shown
+function renderContactBar(cfg){
+  const bar = document.getElementById("contactBar");
+  if(!bar) return;
+  const phone = (cfg.phone || "").replace(/\D/g,"") || SHOP_PHONE;
+  bar.innerHTML = `
+    <a class="contact-btn contact-call" href="tel:+${phone}">📞 Call</a>
+    <a class="contact-btn contact-wa" href="https://wa.me/${phone}" target="_blank" rel="noopener">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-2px;margin-right:4px"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      WhatsApp
+    </a>
+  `;
+}
+
 /* ---------------- PUBLIC MENU RENDER ---------------- */
+function allItemsFlat(){
+  const map = {};
+  menu.sections.forEach(s => s.items.forEach(it => { map[it.id] = it; }));
+  return map;
+}
+
+function renderItemRow(it){
+  const qty = cart[it.id] || 0;
+  const isBest = bestsellerIds.includes(it.id);
+  const control = qty > 0
+    ? `<div class="item-qty-stepper">
+         <button data-cart-act="dec" data-iid="${it.id}">−</button>
+         <span class="qty-num">${qty}</span>
+         <button data-cart-act="inc" data-iid="${it.id}">+</button>
+       </div>`
+    : `<button class="item-add-btn" data-cart-act="inc" data-iid="${it.id}">Add <span>+</span></button>`;
+  const imgHtml = it.image
+    ? `<img class="item-thumb" src="${it.image}" alt="${escapeHtml(it.name)}" loading="lazy">`
+    : "";
+  const bestBadge = isBest ? `<span class="best-badge">⭐ Bestseller</span>` : "";
+  return `
+    <div class="item-row">
+      ${imgHtml}
+      <div class="item-info">
+        ${bestBadge}
+        <span class="item-name">${escapeHtml(it.name)}</span>
+      </div>
+      <span class="dots"></span>
+      <span class="item-price">${money(it.price)}</span>
+      ${control}
+    </div>`;
+}
+
 function renderPublicMenu(){
   const area = document.getElementById("menuArea");
   if(!menu.sections.length){
@@ -38,30 +88,26 @@ function renderPublicMenu(){
     renderCatRail();
     return;
   }
-  // Preserve scroll position across re-renders triggered by polling.
-  area.innerHTML = menu.sections.map(sec => `
+
+  // Bestseller virtual section (only shown if any IDs marked)
+  const allItems = allItemsFlat();
+  const bestItems = bestsellerIds.map(id => allItems[id]).filter(Boolean);
+  const bestSection = bestItems.length
+    ? `<div class="section" id="section-bestsellers">
+         <div class="section-title-row">
+           <div class="rule"></div><div class="pill pill-best">⭐ Bestsellers</div><div class="rule"></div>
+         </div>
+         ${bestItems.map(it => renderItemRow(it)).join("")}
+       </div>`
+    : "";
+
+  area.innerHTML = bestSection + menu.sections.map(sec => `
     <div class="section" id="section-${sec.id}">
       <div class="section-title-row">
         <div class="rule"></div><div class="pill">${escapeHtml(sec.name)}</div><div class="rule"></div>
       </div>
       ${ sec.items.length
-          ? sec.items.map(it => {
-              const qty = cart[it.id] || 0;
-              const control = qty > 0
-                ? `<div class="item-qty-stepper">
-                     <button data-cart-act="dec" data-iid="${it.id}">−</button>
-                     <span class="qty-num">${qty}</span>
-                     <button data-cart-act="inc" data-iid="${it.id}">+</button>
-                   </div>`
-                : `<button class="item-add-btn" data-cart-act="inc" data-iid="${it.id}">Add <span>+</span></button>`;
-              return `
-            <div class="item-row">
-              <span class="item-name">${escapeHtml(it.name)}</span>
-              <span class="dots"></span>
-              <span class="item-price">${money(it.price)}</span>
-              ${control}
-            </div>`;
-            }).join("")
+          ? sec.items.map(it => renderItemRow(it)).join("")
           : `<div class="empty-note">No items yet in this section.</div>`
       }
     </div>
@@ -93,10 +139,25 @@ function pickCategoryIcon(name){
 function renderCatRail(){
   const rail = document.getElementById("catRail");
   if(!menu.sections.length){ rail.innerHTML = ""; return; }
+
+  // Bestseller entry only shown when there are bestsellers
+  const allItems = allItemsFlat();
+  const hasBest = bestsellerIds.some(id => allItems[id]);
+  const bestBtn = hasBest
+    ? `<button class="cat-rail-btn" data-target="section-bestsellers">
+         <span class="cat-rail-icon cat-rail-icon--best">⭐</span>
+         <span class="cat-rail-label">Best</span>
+       </button>
+       <div class="cat-rail-divider"></div>`
+    : "";
+
+  // "Menu" label header
+  const menuLabel = `<div class="cat-rail-menu-label">Menu</div>`;
+
   const prevActive = rail.querySelector(".cat-rail-btn.active")?.dataset.target;
-  rail.innerHTML = menu.sections.map((sec, i) => {
+  rail.innerHTML = bestBtn + menuLabel + menu.sections.map((sec, i) => {
     const target = `section-${sec.id}`;
-    const active = prevActive ? target === prevActive : i === 0;
+    const active = prevActive ? target === prevActive : (!hasBest && i === 0);
     return `<button class="cat-rail-btn${active?' active':''}" data-target="${target}">
               <span class="cat-rail-icon">${pickCategoryIcon(sec.name)}</span>
               <span class="cat-rail-label">${escapeHtml(sec.name)}</span>
@@ -132,11 +193,6 @@ function observeSections(){
 }
 
 /* ---------------- CART ---------------- */
-function allItemsFlat(){
-  const map = {};
-  menu.sections.forEach(sec => sec.items.forEach(it => { map[it.id] = { ...it, section: sec.name }; }));
-  return map;
-}
 function cartCount(){ return Object.values(cart).reduce((a,b) => a+b, 0); }
 function cartTotal(){
   const items = allItemsFlat();
@@ -335,14 +391,12 @@ document.getElementById("sendOrderBtn").addEventListener("click", async () => {
     const captionLines = entries.map(([id,qty]) => `${qty} × ${items[id].name}`);
     const caption = `Order ${orderLabel} — ${new Date().toLocaleString()}\nFrom the menu (${note}):\n${captionLines.join("\n")}\nTotal: ${money(cartTotal())}`;
 
-    // 1) Try delivering straight to the shop's Telegram via our own
-    //    server (the bot token lives in a Vercel env var, never here).
-    btn.textContent = "Sending to Telegram…";
+    // 1) Try delivering to the shop's WhatsApp via our own server.
+    btn.textContent = "Sending to WhatsApp…";
     try{
-      const imageBase64 = await blobToBase64(blob);
-      const result = await api.sendTelegram(imageBase64, caption);
+      const result = await api.sendWhatsApp(caption);
       if(result.ok){
-        hint.textContent = `✅ Order ${orderLabel} sent! The shop has received it on Telegram.`;
+        hint.textContent = `✅ Order ${orderLabel} sent to the shop via WhatsApp!`;
         cart = {};
         renderPublicMenu(); updateCartFab();
         btn.textContent = originalText;
@@ -350,43 +404,30 @@ document.getElementById("sendOrderBtn").addEventListener("click", async () => {
         return;
       }
       if(result.configured === false){
-        // Telegram just isn't set up — not an error, fall through quietly.
+        // WhatsApp API not set up — fall through to share sheet
       } else {
-        hint.textContent = "Couldn't reach Telegram automatically. Trying another way to send it…";
+        hint.textContent = "Couldn't reach WhatsApp API automatically. Trying another way…";
       }
     }catch(err){
-      hint.textContent = "Couldn't reach Telegram automatically (" + err.message + "). Trying another way to send it…";
+      hint.textContent = "Couldn't reach WhatsApp API (" + err.message + "). Trying another way…";
     }
 
-    // 2) Fall back to the phone's native share sheet.
-    const file = new File([blob], `order-${orderLabel.replace('#','')}.png`, { type: "image/png" });
-    if(navigator.canShare && navigator.canShare({ files: [file] })){
-      btn.textContent = "Opening share sheet…";
-      try{
-        await navigator.share({ files: [file], title: `Order ${orderLabel}`, text: caption });
-        hint.textContent = `✅ Order ${orderLabel} shared — send it to the shop's Telegram to complete your order.`;
-        cart = {};
-        renderPublicMenu(); updateCartFab();
-        btn.textContent = originalText;
-        btn.disabled = false;
-        return;
-      }catch(err){
-        if(err.name === "AbortError"){
-          hint.textContent = "Share cancelled — your order is still saved here, tap Send Order when ready.";
-          btn.textContent = originalText;
-          btn.disabled = false;
-          return;
-        }
-        // any other share error: fall through to download
-      }
-    } else {
-      hint.textContent = (hint.textContent ? hint.textContent + " " : "") +
-        "Direct sharing isn't available in this browser, so we're downloading the order image instead.";
+    // 2) Fall back to opening WhatsApp directly with pre-filled message.
+    const phone = SHOP_PHONE;
+    const waText = encodeURIComponent(caption);
+    const waUrl = `https://wa.me/${phone}?text=${waText}`;
+    if(window.open(waUrl, "_blank")){
+      hint.textContent = `✅ Order ${orderLabel} — WhatsApp opened with your order! Send the message to complete.`;
+      cart = {};
+      renderPublicMenu(); updateCartFab();
+      btn.textContent = originalText;
+      btn.disabled = false;
+      return;
     }
 
     // 3) Last resort: download the image.
     downloadBlob(blob, `order-${orderLabel.replace('#','')}.png`);
-    hint.textContent = `Order ${orderLabel} image downloaded. Open Telegram and send this image to the shop to complete your order.`;
+    hint.textContent = `Order ${orderLabel} image downloaded. Screenshot it and send via WhatsApp to complete your order.`;
     btn.textContent = originalText;
     btn.disabled = false;
   }catch(err){
@@ -397,5 +438,7 @@ document.getElementById("sendOrderBtn").addEventListener("click", async () => {
 });
 
 /* ---------------- INIT ---------------- */
-loadMenu();
-loadBranding();
+(async () => {
+  await loadBranding(); // load bestsellerIds first so menu renders with correct state
+  await loadMenu();
+})();

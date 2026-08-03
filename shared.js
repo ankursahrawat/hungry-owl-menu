@@ -39,9 +39,13 @@ const api = {
     body: JSON.stringify({ pin, ...cfg })
   }),
   nextOrderNumber: () => apiFetch("/api/order-number", { method: "POST" }),
-  sendTelegram: (imageBase64, caption) => apiFetch("/api/send-telegram", {
+  resetOrderCounter: (pin) => apiFetch("/api/order-number", {
+    method: "DELETE", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ pin })
+  }),
+  sendWhatsApp: (text) => apiFetch("/api/send-whatsapp", {
     method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ imageBase64, caption })
+    body: JSON.stringify({ text })
   }),
   getStatus: () => apiFetch("/api/status"),
 };

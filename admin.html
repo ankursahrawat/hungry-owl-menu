@@ -99,13 +99,23 @@
   </div>
 
   <div class="admin-section-card">
-    <div style="font-family:'Baloo 2',sans-serif; font-weight:700; font-size:1.05rem; margin-bottom:8px;">📲 Telegram Order Delivery</div>
+    <div style="font-family:'Baloo 2',sans-serif; font-weight:700; font-size:1.05rem; margin-bottom:8px;">🔢 Order Number Counter</div>
+    <p class="hint" style="margin-top:0;">Current counter resets to zero. Use this at the start of each day or shift.</p>
+    <button class="btn btn-danger btn-small" id="resetOrderCounterBtn">Reset Order Counter to #1</button>
+    <p class="hint" id="orderCounterHint" style="margin-top:10px;"></p>
+  </div>
+
+  <div class="admin-section-card">
+    <div style="font-family:'Baloo 2',sans-serif; font-weight:700; font-size:1.05rem; margin-bottom:8px;">💬 WhatsApp Order Delivery</div>
     <p class="hint" style="margin-top:0;">
-      Set these as environment variables in your Vercel project (Settings → Environment Variables), then redeploy:
-      <code>TELEGRAM_BOT_TOKEN</code> and <code>TELEGRAM_CHAT_ID</code>.
-      They're never sent to this page or stored in the database — only your server sees them, which is why there's no field to type them here.
+      Orders are sent directly to your WhatsApp via the Meta Cloud API. Set these in Vercel (Settings → Environment Variables), then redeploy:
     </p>
-    <p class="hint">To get these: message <strong>@BotFather</strong> on Telegram to create a bot and get its token, then message <strong>@userinfobot</strong> (or add the bot to a group) to get the chat ID.</p>
+    <ul class="hint" style="margin:0 0 8px 16px; padding:0;">
+      <li><code>WHATSAPP_TOKEN</code> — permanent access token from Meta Business Suite</li>
+      <li><code>WHATSAPP_PHONE_ID</code> — Phone Number ID from your Meta WhatsApp dashboard</li>
+      <li><code>WHATSAPP_TO</code> — your shop WhatsApp number with country code, no + (e.g. <code>919308006900</code>)</li>
+    </ul>
+    <p class="hint">If WhatsApp API isn't configured, customers are redirected to open WhatsApp directly with the order pre-filled.</p>
   </div>
 
   <div class="admin-section-card">
