@@ -225,9 +225,9 @@
     top:10px;
     display:flex;
     flex-direction:column;
-    align-items:flex-start;
-    gap:15px;
-    padding:11px 4px;
+    align-items:center;
+    gap:13.2px;
+    padding:11px 4.4px;
     max-height:calc(100vh - 20px);
     overflow-y:auto;
     scrollbar-width:none;
@@ -235,17 +235,26 @@
   .cat-rail::-webkit-scrollbar{ display:none; }
   .cat-rail-btn{
     flex:0 0 auto;
-    display:flex; align-items:center;
-    background:none; border:none; cursor:pointer;
-    padding:2px 0 2px 10px;
-    border-left:2.2px solid transparent;
+    display:flex; flex-direction:column; align-items:center; gap:3.3px;
+    background:none; border:none; cursor:pointer; padding:2.2px;
     -webkit-tap-highlight-color:transparent;
   }
-  .cat-rail-label{
-    font-family:'Baloo 2',sans-serif; font-weight:700; font-size:.66rem;
-    color:#888; text-align:left; line-height:1.2; max-width:64px;
+  .cat-rail-icon{
+    width:40px; height:40px;
+    border-radius:12px;
+    border:1.65px solid #ddd;
+    background:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.1rem;
   }
-  .cat-rail-btn.active{ border-left-color:var(--dark); }
+  .cat-rail-btn.active .cat-rail-icon{
+    background:var(--primary);
+    border:2.75px solid var(--dark);
+  }
+  .cat-rail-label{
+    font-family:'Baloo 2',sans-serif; font-weight:700; font-size:.61rem;
+    color:#888; text-align:center; line-height:1.1; max-width:53px;
+  }
   .cat-rail-btn.active .cat-rail-label{ color:var(--dark); font-weight:800; }
   #menuArea{ flex:1 1 auto; min-width:0; }
   /* ---------- Floating controls ---------- */
@@ -530,8 +539,9 @@
     .item-add-btn{ font-size:.78rem; padding:5px 10px; }
     .item-qty-stepper button{ font-size:.9rem; }
 
-    .cat-rail{ gap:12px; }
-    .cat-rail-label{ font-size:.58rem; max-width:52px; }
+    .cat-rail{ gap:11px; }
+    .cat-rail-icon{ width:35px; height:35px; font-size:.99rem; }
+    .cat-rail-label{ font-size:.55rem; max-width:46px; }
     .menu-heading{ font-size:1.05rem; }
 
     .modal h2{ font-size:1.2rem; }
@@ -548,7 +558,8 @@
     .pill{ font-size:.85rem; padding:5px 12px; }
     .item-name{ font-size:.84rem; }
     .item-price{ font-size:.86rem; }
-    .cat-rail{ gap:10px; }
-    .cat-rail-label{ font-size:.5rem; max-width:40px; }
+    .cat-rail{ gap:8.8px; }
+    .cat-rail-icon{ width:31px; height:31px; font-size:.88rem; }
+    .cat-rail-label{ display:none; }
   }
 
