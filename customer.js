@@ -412,7 +412,27 @@ document.getElementById("sendOrderBtn").addEventListener("click", async () => {
       hint.textContent = "Couldn't reach WhatsApp API (" + err.message + "). Trying another way…";
     }
 
-    // 2) Fall back to opening WhatsApp directly with pre-filled message.
+    // 2a) Try sharing image + text via native share sheet (opens WhatsApp with photo)
+    const imgFile = new File([blob], `order-${orderLabel.replace('#','')}.png`, { type:"image/png" });
+    if(navigator.canShare && navigator.canShare({ files:[imgFile] })){
+      btn.textContent = "Opening WhatsApp…";
+      try{
+        await navigator.share({ files:[imgFile], title:`Order ${orderLabel}`, text:caption });
+        hint.textContent = `✅ Order ${orderLabel} — tap WhatsApp in the share sheet to send your order photo!`;
+        cart = {}; renderPublicMenu(); updateCartFab();
+        btn.textContent = originalText; btn.disabled = false;
+        return;
+      }catch(err){
+        if(err.name === "AbortError"){
+          hint.textContent = "Share cancelled — tap Send Order again when ready.";
+          btn.textContent = originalText; btn.disabled = false;
+          return;
+        }
+        // share failed — fall through to wa.me link below
+      }
+    }
+
+    // 2b) Fall back to opening WhatsApp directly with pre-filled message.
     const phone = SHOP_PHONE;
     const waText = encodeURIComponent(caption);
     const waUrl = `https://wa.me/${phone}?text=${waText}`;
