@@ -354,6 +354,15 @@ async function generateOrderImageBlob(orderNo){
   return new Promise(resolve => canvas.toBlob((blob) => resolve(blob), "image/png"));
 }
 
+function blobToBase64(blob){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
 /* ---------------- SEND ORDER ---------------- */
 document.getElementById("sendOrderBtn").addEventListener("click", async () => {
   const btn = document.getElementById("sendOrderBtn");
@@ -391,12 +400,13 @@ document.getElementById("sendOrderBtn").addEventListener("click", async () => {
     const captionLines = entries.map(([id,qty]) => `${qty} × ${items[id].name}`);
     const caption = `Order ${orderLabel} — ${new Date().toLocaleString()}\nFrom the menu (${note}):\n${captionLines.join("\n")}\nTotal: ${money(cartTotal())}`;
 
-    // 1) Try delivering to the shop's WhatsApp via our own server.
+    // 1) Send image + text to shop via WhatsApp Cloud API
     btn.textContent = "Sending to WhatsApp…";
     try{
-      const result = await api.sendWhatsApp(caption);
+      const imageBase64 = await blobToBase64(blob);
+      const result = await api.sendWhatsApp(caption, imageBase64);
       if(result.ok){
-        hint.textContent = `✅ Order ${orderLabel} sent to the shop via WhatsApp!`;
+        hint.textContent = `✅ Order ${orderLabel} sent to the shop on WhatsApp (photo + text)!`;
         cart = {};
         renderPublicMenu(); updateCartFab();
         btn.textContent = originalText;
@@ -404,35 +414,15 @@ document.getElementById("sendOrderBtn").addEventListener("click", async () => {
         return;
       }
       if(result.configured === false){
-        // WhatsApp API not set up — fall through to share sheet
+        // WhatsApp API not configured — fall through
       } else {
-        hint.textContent = "Couldn't reach WhatsApp API automatically. Trying another way…";
+        hint.textContent = "Couldn't reach WhatsApp API. Trying another way…";
       }
     }catch(err){
       hint.textContent = "Couldn't reach WhatsApp API (" + err.message + "). Trying another way…";
     }
 
-    // 2a) Try sharing image + text via native share sheet (opens WhatsApp with photo)
-    const imgFile = new File([blob], `order-${orderLabel.replace('#','')}.png`, { type:"image/png" });
-    if(navigator.canShare && navigator.canShare({ files:[imgFile] })){
-      btn.textContent = "Opening WhatsApp…";
-      try{
-        await navigator.share({ files:[imgFile], title:`Order ${orderLabel}`, text:caption });
-        hint.textContent = `✅ Order ${orderLabel} — tap WhatsApp in the share sheet to send your order photo!`;
-        cart = {}; renderPublicMenu(); updateCartFab();
-        btn.textContent = originalText; btn.disabled = false;
-        return;
-      }catch(err){
-        if(err.name === "AbortError"){
-          hint.textContent = "Share cancelled — tap Send Order again when ready.";
-          btn.textContent = originalText; btn.disabled = false;
-          return;
-        }
-        // share failed — fall through to wa.me link below
-      }
-    }
-
-    // 2b) Fall back to opening WhatsApp directly with pre-filled message.
+    // 2) Fall back to opening WhatsApp directly with pre-filled message.
     const phone = SHOP_PHONE;
     const waText = encodeURIComponent(caption);
     const waUrl = `https://wa.me/${phone}?text=${waText}`;

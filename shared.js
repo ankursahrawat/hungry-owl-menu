@@ -43,9 +43,9 @@ const api = {
     method: "DELETE", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ pin })
   }),
-  sendWhatsApp: (text) => apiFetch("/api/send-whatsapp", {
+  sendWhatsApp: (text, imageBase64) => apiFetch("/api/send-whatsapp", {
     method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text })
+    body: JSON.stringify({ text, imageBase64: imageBase64 || null })
   }),
   getStatus: () => apiFetch("/api/status"),
 };
