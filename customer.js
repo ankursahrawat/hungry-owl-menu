@@ -33,7 +33,7 @@ document.addEventListener("visibilitychange", () => { if(!document.hidden){ load
 window.addEventListener("focus", () => { loadMenu(); loadBranding(); });
 
 /* ---------------- CONTACT BAR ---------------- */
-let shopPhone = "919308006900"; // fallback, overwritten by site config
+let shopPhone = "9193080069"; // fallback, overwritten by site config
 function renderContactBar(cfg){
   const bar = document.getElementById("contactBar");
   if(!bar) return;
