@@ -400,13 +400,13 @@ document.getElementById("sendOrderBtn").addEventListener("click", async () => {
     const captionLines = entries.map(([id,qty]) => `${qty} × ${items[id].name}`);
     const caption = `Order ${orderLabel} — ${new Date().toLocaleString()}\nFrom the menu (${note}):\n${captionLines.join("\n")}\nTotal: ${money(cartTotal())}`;
 
-    // 1) Send image + text to shop via WhatsApp Cloud API
+    // 1) Try delivering to the shop's WhatsApp via our own server.
     btn.textContent = "Sending to WhatsApp…";
     try{
       const imageBase64 = await blobToBase64(blob);
       const result = await api.sendWhatsApp(caption, imageBase64);
       if(result.ok){
-        hint.textContent = `✅ Order ${orderLabel} sent to the shop on WhatsApp (photo + text)!`;
+        hint.textContent = `✅ Order ${orderLabel} sent to the shop via WhatsApp!`;
         cart = {};
         renderPublicMenu(); updateCartFab();
         btn.textContent = originalText;
@@ -414,9 +414,9 @@ document.getElementById("sendOrderBtn").addEventListener("click", async () => {
         return;
       }
       if(result.configured === false){
-        // WhatsApp API not configured — fall through
+        // WhatsApp API not set up — fall through to share sheet
       } else {
-        hint.textContent = "Couldn't reach WhatsApp API. Trying another way…";
+        hint.textContent = "Couldn't reach WhatsApp API automatically. Trying another way…";
       }
     }catch(err){
       hint.textContent = "Couldn't reach WhatsApp API (" + err.message + "). Trying another way…";
