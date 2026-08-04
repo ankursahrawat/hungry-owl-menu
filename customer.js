@@ -33,7 +33,7 @@ document.addEventListener("visibilitychange", () => { if(!document.hidden){ load
 window.addEventListener("focus", () => { loadMenu(); loadBranding(); });
 
 /* ---------------- CONTACT BAR ---------------- */
-const SHOP_PHONE = "919308006900"; // always shown
+const SHOP_PHONE = "9193080069"; // always shown
 function renderContactBar(cfg){
   const bar = document.getElementById("contactBar");
   if(!bar) return;
