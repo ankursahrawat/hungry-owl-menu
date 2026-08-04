@@ -389,36 +389,47 @@ document.getElementById("sendOrderBtn").addEventListener("click", async () => {
 
     const note = noteInput.value.trim();
     const captionLines = entries.map(([id,qty]) => `${qty} × ${items[id].name}`);
-    const orderText = `🦉 *Hungry Owl — Order ${orderLabel}*\n📅 ${new Date().toLocaleString()}\n👤 Name: ${note}\n\n${captionLines.join("\n")}\n\n💰 *Total: ${money(cartTotal())}*`;
+    const caption = `Order ${orderLabel} — ${new Date().toLocaleString()}\nFrom the menu (${note}):\n${captionLines.join("\n")}\nTotal: ${money(cartTotal())}`;
 
-    // 1) Try server-side WhatsApp API (sends text to shop silently in background)
+    // 1) Try delivering to the shop's WhatsApp via our own server.
     btn.textContent = "Sending to WhatsApp…";
     try{
-      await api.sendWhatsApp(orderText);
-    }catch(e){ /* non-fatal, continue to share */ }
-
-    // 2) Share image + text via native share sheet
-    //    On mobile: share sheet appears → tap WhatsApp → sends photo + text together
-    //    On desktop or if share fails: downloads the image as fallback
-    const imgFile = new File([blob], `order-${orderLabel.replace('#','')}.png`, { type:"image/png" });
-    btn.textContent = "Opening WhatsApp…";
-    try{
-      await navigator.share({ files:[imgFile], title:`Order ${orderLabel}`, text:orderText });
-      hint.textContent = `✅ Order ${orderLabel} — tap WhatsApp in the share sheet to send your order photo!`;
-    }catch(err){
-      if(err.name === "AbortError"){
-        // User cancelled the share sheet — keep cart, let them try again
-        hint.textContent = "Share cancelled — tap Send Order again when ready.";
-        btn.textContent = originalText; btn.disabled = false;
+      const result = await api.sendWhatsApp(caption);
+      if(result.ok){
+        hint.textContent = `✅ Order ${orderLabel} sent to the shop via WhatsApp!`;
+        cart = {};
+        renderPublicMenu(); updateCartFab();
+        btn.textContent = originalText;
+        btn.disabled = false;
         return;
       }
-      // Share API not supported (desktop browser) — download as fallback
-      downloadBlob(blob, `order-${orderLabel.replace('#','')}.png`);
-      hint.textContent = `Order photo downloaded — send it on WhatsApp (+${SHOP_PHONE}) to complete your order.`;
+      if(result.configured === false){
+        // WhatsApp API not set up — fall through to share sheet
+      } else {
+        hint.textContent = "Couldn't reach WhatsApp API automatically. Trying another way…";
+      }
+    }catch(err){
+      hint.textContent = "Couldn't reach WhatsApp API (" + err.message + "). Trying another way…";
     }
 
-    cart = {}; renderPublicMenu(); updateCartFab();
-    btn.textContent = originalText; btn.disabled = false;
+    // 2) Fall back to opening WhatsApp directly with pre-filled message.
+    const phone = SHOP_PHONE;
+    const waText = encodeURIComponent(caption);
+    const waUrl = `https://wa.me/${phone}?text=${waText}`;
+    if(window.open(waUrl, "_blank")){
+      hint.textContent = `✅ Order ${orderLabel} — WhatsApp opened with your order! Send the message to complete.`;
+      cart = {};
+      renderPublicMenu(); updateCartFab();
+      btn.textContent = originalText;
+      btn.disabled = false;
+      return;
+    }
+
+    // 3) Last resort: download the image.
+    downloadBlob(blob, `order-${orderLabel.replace('#','')}.png`);
+    hint.textContent = `Order ${orderLabel} image downloaded. Screenshot it and send via WhatsApp to complete your order.`;
+    btn.textContent = originalText;
+    btn.disabled = false;
   }catch(err){
     hint.textContent = "Something went wrong generating the order: " + err.message;
     btn.textContent = originalText;
