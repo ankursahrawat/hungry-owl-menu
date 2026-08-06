@@ -234,155 +234,300 @@ document.getElementById("saveBannerBtn").addEventListener("click", async () => {
 });
 
 /* ---------------- FULL MENU IMAGE DOWNLOAD ---------------- */
-async function generateFullMenuImageBlob(){
-  const cfg = window.__lastSiteConfig || {};
-  const cssWidth = 640;
-  const padding = 32;
-  const lineHeight = 30;
-  const sectionGap = 22;
-  const sectionTitleGap = 12;
-  const scale = 2;
 
-  const measureCanvas = document.createElement("canvas");
-  const mctx = measureCanvas.getContext("2d");
+/* ── BRAND ASSETS (embedded) ── */
+const BRAND_LOGO_B64 = "/brand-logo.svg";
+const BRAND_QR_B64   = "/brand-qr.svg";
 
-  const brandName = cfg.brandName || "Menu";
-  const tagline = cfg.tagline || "";
-  const hasLogo = !!cfg.logoImage;
-  const logoSize = 64;
-  const titleAreaX = padding + (hasLogo ? logoSize + 16 : 0);
-
-  let titleFont = 40;
-  mctx.font = `bold ${titleFont}px Georgia, serif`;
-  const titleMaxWidth = cssWidth - titleAreaX - padding - (cfg.phone ? 140 : 0);
-  while(titleFont > 22 && mctx.measureText(brandName).width > titleMaxWidth){
-    titleFont -= 2;
-    mctx.font = `bold ${titleFont}px Georgia, serif`;
-  }
-
-  mctx.font = "18px Arial";
-  const taglineLines = tagline ? wrapText(mctx, tagline, cssWidth - titleAreaX - padding, 2) : [];
-
-  mctx.font = "19px Arial";
-  const priceColWidth = 90;
-  const itemNameMaxWidth = cssWidth - padding*2 - 20 - priceColWidth;
-  const sectionLayouts = menu.sections.map(sec => {
-    const items = sec.items.length ? sec.items.map(it => {
-      mctx.font = "19px Arial";
-      const priceStr = money(it.price);
-      const lines = wrapText(mctx, it.name, itemNameMaxWidth, 2);
-      return { name: it.name, priceStr, lines };
-    }) : [{ placeholder: true, lines: ["No items yet"] }];
-    const itemLines = items.reduce((sum, it) => sum + it.lines.length, 0);
-    return { name: sec.name, items, itemLines };
+/* ── PREMIUM MENU GENERATOR ── */
+function loadImg(src){
+  return new Promise((res,rej)=>{
+    const img=new Image(); img.crossOrigin="anonymous";
+    img.onload=()=>res(img); img.onerror=rej; img.src=src;
   });
-
-  const headerHeight = 60 + titleFont + 14 + (taglineLines.length * 24) + 26;
-  const contentHeight = sectionLayouts.reduce((sum, sec) =>
-    sum + sectionTitleGap + 28 + (sec.itemLines * lineHeight) + sectionGap, 0);
-  const footerHeight = 46;
-  const cssHeight = Math.round(headerHeight + contentHeight + footerHeight + padding);
-
-  const canvas = document.createElement("canvas");
-  canvas.width = cssWidth * scale;
-  canvas.height = cssHeight * scale;
-  const ctx = canvas.getContext("2d");
-  ctx.setTransform(scale, 0, 0, scale, 0, 0);
-  const width = cssWidth, height = cssHeight;
-
-  ctx.fillStyle = "#FBF5E6"; ctx.fillRect(0,0,width,height);
-  ctx.strokeStyle = "#201A10"; ctx.lineWidth = 6;
-  ctx.strokeRect(3,3,width-6,height-6);
-  ctx.strokeStyle = "#D9A62E"; ctx.lineWidth = 1.5;
-  ctx.strokeRect(10,10,width-20,height-20);
-
-  if(hasLogo){
-    try{
-      const img = await loadImageEl(cfg.logoImage);
-      ctx.save();
-      drawRoundedRect(ctx, padding, padding, logoSize, logoSize, logoSize/2);
-      ctx.clip();
-      ctx.drawImage(img, padding, padding, logoSize, logoSize);
-      ctx.restore();
-      ctx.strokeStyle = "#201A10"; ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.arc(padding+logoSize/2, padding+logoSize/2, logoSize/2, 0, Math.PI*2);
-      ctx.stroke();
-    }catch(e){ /* skip logo if it fails to load */ }
-  }
-
-  ctx.textBaseline = "top";
-  ctx.fillStyle = "#201A10";
-  ctx.font = `bold ${titleFont}px Georgia, serif`;
-  ctx.textAlign = "left";
-  ctx.fillText(brandName, titleAreaX, padding - 4);
-
-  let ty = padding + titleFont + 8;
-  ctx.font = "18px Arial";
-  ctx.fillStyle = "#8a7c58";
-  taglineLines.forEach(line => { ctx.fillText(line, titleAreaX, ty); ty += 24; });
-
-  if(cfg.phone){
-    ctx.textAlign = "right";
-    ctx.font = "16px Arial";
-    ctx.fillStyle = "#201A10";
-    ctx.fillText("📞 " + cfg.phone, width-padding, padding);
-    ctx.textAlign = "left";
-  }
-
-  const dividerY = Math.max(padding + logoSize + 14, ty + 10);
-  ctx.strokeStyle = "#C7AD70";
-  ctx.setLineDash([4,4]);
-  ctx.beginPath(); ctx.moveTo(padding, dividerY); ctx.lineTo(width-padding, dividerY); ctx.stroke();
-  ctx.setLineDash([]);
-
-  let y = dividerY + 26;
-  sectionLayouts.forEach(sec => {
-    ctx.font = "bold 23px Georgia, serif";
-    ctx.fillStyle = "#B0453B";
-    ctx.fillText(sec.name.toUpperCase(), padding, y);
-    y += 28 + sectionTitleGap - 12;
-
-    sec.items.forEach(it => {
-      if(it.placeholder){
-        ctx.font = "italic 17px Arial";
-        ctx.fillStyle = "#8a7c58";
-        ctx.fillText(it.lines[0], padding+10, y);
-        y += lineHeight;
-        return;
-      }
-      ctx.font = "19px Arial";
-      ctx.fillStyle = "#201A10";
-      ctx.textAlign = "right";
-      ctx.fillText(it.priceStr, width-padding, y);
-      ctx.textAlign = "left";
-      it.lines.forEach(line => { ctx.fillText(line, padding+10, y); y += lineHeight; });
-    });
-    y += sectionGap - 12;
-  });
-
-  ctx.strokeStyle = "#C7AD70";
-  ctx.setLineDash([4,4]);
-  ctx.beginPath(); ctx.moveTo(padding, height-footerHeight+8); ctx.lineTo(width-padding, height-footerHeight+8); ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.font = "italic 15px Arial";
-  ctx.fillStyle = "#8a7c58";
-  ctx.textAlign = "center";
-  ctx.fillText("Prices may change without notice", width/2, height-footerHeight+22);
-  ctx.textAlign = "left";
-
-  return new Promise(resolve => canvas.toBlob(blob => resolve(blob), "image/png"));
 }
-document.getElementById("downloadMenuBtn").addEventListener("click", async () => {
-  showToast("Preparing menu image…");
+
+async function generateFullMenuImageBlob(){
+  const cfg     = window.__lastSiteConfig || {};
+  const bestSet = new Set(window.__bestsellerIds || []);
+  const scale   = 3;          // high-res for print
+  const CW      = 660;        // CSS width
+  const COL     = (CW-80)/2;  // column width
+
+  /* ── fonts (canvas built-ins only) ── */
+  const F = {
+    brand:  (s)=>`900 ${s}px Trebuchet MS, Arial, sans-serif`,
+    title:  (s)=>`800 ${s}px Arial, sans-serif`,
+    label:  (s)=>`700 ${s}px Arial, sans-serif`,
+    item:   (s)=>`600 ${s}px Arial, sans-serif`,
+    price:  (s)=>`900 ${s}px Arial, sans-serif`,
+  };
+
+  /* ── measure pass to compute height ── */
+  const tmp = document.createElement("canvas");
+  tmp.width = CW*scale; tmp.height = 100;
+  const mx = tmp.getContext("2d");
+
+  /* count total item rows in two-column layout */
+  const allSections = menu.sections.map(sec=>({
+    ...sec,
+    items: sec.items.length ? sec.items : [{id:"_",name:"Coming soon",price:0}]
+  }));
+  const half = Math.ceil(allSections.length/2);
+  const leftSecs  = allSections.slice(0, half);
+  const rightSecs = allSections.slice(half);
+
+  function secHeight(secs){
+    let h = 0;
+    secs.forEach(sec=>{
+      h += 30; // section title
+      sec.items.forEach(it=>{ h += 22; }); // item row
+      h += 14; // gap after section
+    });
+    return h;
+  }
+
+  const HEADER_H = 230;
+  const BODY_PAD = 22;
+  const COL_H    = Math.max(secHeight(leftSecs), secHeight(rightSecs));
+  const QR_H     = 160;
+  const FOOTER_H = 50;
+  const BEST_LEGEND_H = 22;
+  const RIGHT_EXTRA = QR_H + BEST_LEGEND_H + 14;
+  const RIGHT_TOTAL = secHeight(rightSecs) + RIGHT_EXTRA;
+  const BODY_H   = Math.max(COL_H, RIGHT_TOTAL) + BODY_PAD*2;
+  const GOLD_H   = 5;
+  const CH       = HEADER_H + GOLD_H + BODY_H + GOLD_H + FOOTER_H + 16;
+
+  /* ── create final canvas ── */
+  const canvas = document.createElement("canvas");
+  canvas.width  = CW   * scale;
+  canvas.height = CH   * scale;
+  const ctx = canvas.getContext("2d");
+  ctx.scale(scale, scale);
+
+  const G = {
+    black:   "#0f0f0f",
+    gold:    "#F0AC11",
+    goldDim: "rgba(240,172,17,0.15)",
+    accent:  "#FFC52E",
+    cream:   "#d4c9a8",
+    muted:   "rgba(240,172,17,0.12)",
+    border:  "rgba(240,172,17,0.35)",
+    white:   "#ffffff",
+  };
+
+  /* helpers */
+  function roundRect(x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+r,r);
+    ctx.lineTo(x+w,y+h-r); ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+    ctx.lineTo(x+r,y+h); ctx.arcTo(x,y+h,x,y+h-r,r);
+    ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+r,y,r);
+    ctx.closePath();
+  }
+  function fillRR(x,y,w,h,r,col){ roundRect(x,y,w,h,r); ctx.fillStyle=col; ctx.fill(); }
+  function strokeRR(x,y,w,h,r,col,lw){ roundRect(x,y,w,h,r); ctx.strokeStyle=col; ctx.lineWidth=lw; ctx.stroke(); }
+
+  /* outer shell — double gold border */
+  fillRR(0,0,CW,CH,3,G.black);
+  strokeRR(1,1,CW-2,CH-2,3,G.gold,2);
+  strokeRR(5,5,CW-10,CH-10,2,"rgba(240,172,17,0.3)",1);
+
+  /* ── HEADER ── */
+  const HW = CW-12, HX = 6, HY = 6, HH = HEADER_H;
+  fillRR(HX,HY,HW,HH,16,G.gold);
+  /* diagonal texture */
+  ctx.save();
+  roundRect(HX,HY,HW,HH,16); ctx.clip();
+  ctx.strokeStyle="rgba(0,0,0,0.045)"; ctx.lineWidth=1;
+  for(let i=-HH; i<HW+HH; i+=18){
+    ctx.beginPath(); ctx.moveTo(HX+i,HY); ctx.lineTo(HX+i+HH,HY+HH); ctx.stroke();
+  }
+  ctx.restore();
+  /* inner border */
+  strokeRR(HX+8,HY+8,HW-16,HH-16,10,"#151515",2.5);
+  strokeRR(HX+13,HY+13,HW-26,HH-26,7,"rgba(0,0,0,0.18)",1);
+  /* corner marks */
+  const cm=[[HX+20,HY+20],[HX+HW-20,HY+20],[HX+20,HY+HH-20],[HX+HW-20,HY+HH-20]];
+  const cdir=[[1,1],[-1,1],[1,-1],[-1,-1]];
+  cm.forEach(([cx2,cy2],[dx,dy])=>{
+    ctx.strokeStyle="#151515"; ctx.lineWidth=2; ctx.beginPath();
+    ctx.moveTo(cx2,cy2); ctx.lineTo(cx2+dx*12,cy2);
+    ctx.moveTo(cx2,cy2); ctx.lineTo(cx2,cy2+dy*12);
+    ctx.stroke();
+  });
+
+  /* logo — load brand logo SVG */
+  let logoY = HY+22;
+  try{
+    const logoSrc = cfg.logoImage || BRAND_LOGO_B64;
+    const logoImg = await loadImg(logoSrc);
+    const lH = 90, lW = lH*(836/1254);
+    ctx.drawImage(logoImg, HX+HW/2-lW/2, logoY, lW, lH);
+    logoY += lH+6;
+  }catch(e){ logoY += 10; }
+
+  /* brand name */
+  ctx.font = F.brand(32);
+  ctx.fillStyle = "#151515";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  ctx.fillText(cfg.brandName || "Hungry Owl", HX+HW/2, logoY);
+  logoY += 36;
+
+  /* tagline */
+  ctx.font = F.label(10);
+  ctx.fillStyle = "#151515";
+  ctx.globalAlpha = 0.7;
+  const tl = (cfg.tagline || "The Cloud Café").replace(/^—\s*/,'').replace(/\s*—$/,'').toUpperCase();
+  ctx.fillText(tl.split('').join(' '), HX+HW/2, logoY);
+  ctx.globalAlpha = 1;
+  logoY += 16;
+
+  /* short divider */
+  ctx.strokeStyle="#151515"; ctx.lineWidth=2; ctx.globalAlpha=0.3;
+  ctx.beginPath(); ctx.moveTo(HX+HW/2-30,logoY); ctx.lineTo(HX+HW/2+30,logoY); ctx.stroke();
+  ctx.globalAlpha=1;
+
+  /* ── GOLD STRIP ── */
+  const GS1 = HY+HH+6;
+  const grad1 = ctx.createLinearGradient(0,0,CW,0);
+  grad1.addColorStop(0,"#0f0f0f"); grad1.addColorStop(0.2,G.gold);
+  grad1.addColorStop(0.5,G.accent); grad1.addColorStop(0.8,G.gold); grad1.addColorStop(1,"#0f0f0f");
+  ctx.fillStyle=grad1; ctx.fillRect(0,GS1,CW,GOLD_H);
+
+  /* ── BODY ── */
+  const BY = GS1+GOLD_H+2;
+  const BX = 12, BW = CW-24;
+
+  function drawSection(secs, colX, startY){
+    let y = startY;
+    secs.forEach(sec=>{
+      /* section title pill */
+      ctx.font = F.label(9);
+      ctx.textAlign="center";
+      const tw = ctx.measureText("● "+sec.name.toUpperCase()).width + 20;
+      const tx = colX + COL/2 - tw/2;
+      /* rules */
+      ctx.strokeStyle=G.gold; ctx.lineWidth=1; ctx.globalAlpha=0.5;
+      ctx.beginPath(); ctx.moveTo(colX,y+10); ctx.lineTo(tx-4,y+10); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(tx+tw+4,y+10); ctx.lineTo(colX+COL,y+10); ctx.stroke();
+      ctx.globalAlpha=1;
+      /* pill */
+      fillRR(tx,y,tw,20,3,G.black);
+      strokeRR(tx,y,tw,20,3,G.gold,1.2);
+      ctx.fillStyle=G.gold; ctx.font=F.label(8);
+      ctx.fillText("● "+sec.name.toUpperCase(), colX+COL/2, y+5);
+      y += 28;
+
+      /* items */
+      sec.items.forEach(it=>{
+        const isBest = bestSet.has(it.id);
+        /* dotted separator */
+        ctx.strokeStyle=G.muted; ctx.lineWidth=1; ctx.setLineDash([2,3]);
+        ctx.beginPath(); ctx.moveTo(colX,y+18); ctx.lineTo(colX+COL,y+18); ctx.stroke();
+        ctx.setLineDash([]);
+        /* bestseller dot */
+        if(isBest){
+          ctx.fillStyle=G.gold;
+          ctx.beginPath(); ctx.arc(colX+4,y+8,3,0,Math.PI*2); ctx.fill();
+        }
+        /* name */
+        ctx.font = F.item(11);
+        ctx.fillStyle = G.cream;
+        ctx.textAlign="left";
+        const nameX = isBest ? colX+12 : colX+4;
+        ctx.fillText(it.name, nameX, y);
+        /* price */
+        if(it.price > 0){
+          ctx.font = F.price(11);
+          ctx.fillStyle = G.gold;
+          ctx.textAlign="right";
+          ctx.fillText("₹"+it.price, colX+COL, y);
+        }
+        y += 22;
+      });
+      y += 14;
+    });
+    return y;
+  }
+
+  /* left column */
+  drawSection(leftSecs, BX+6, BY+BODY_PAD);
+
+  /* right column */
+  const RX = BX+6+COL+16;
+  let ry = drawSection(rightSecs, RX, BY+BODY_PAD);
+
+  /* QR box */
+  const QRX=RX, QRY=ry+4, QRBOXW=COL, QRBOXH=QR_H;
+  fillRR(QRX,QRY,QRBOXW,QRBOXH,8,G.black);
+  strokeRR(QRX,QRY,QRBOXW,QRBOXH,8,G.gold,1.5);
+  /* glow */
+  const rg = ctx.createRadialGradient(QRX+QRBOXW/2,QRY,5,QRX+QRBOXW/2,QRY,60);
+  rg.addColorStop(0,"rgba(240,172,17,0.15)"); rg.addColorStop(1,"transparent");
+  ctx.fillStyle=rg; fillRR(QRX,QRY,QRBOXW,QRBOXH,8,rg);
+  /* QR image */
+  const qrSize = 90;
+  const qrX = QRX+QRBOXW/2-qrSize/2, qrY = QRY+10;
+  try{
+    const qrImg = await loadImg(BRAND_QR_B64);
+    ctx.fillStyle="#fff"; fillRR(qrX-4,qrY-4,qrSize+8,qrSize+8,4,"#fff");
+    ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
+  }catch(e){}
+  /* divider */
+  ctx.strokeStyle=G.gold; ctx.lineWidth=1; ctx.globalAlpha=0.35;
+  ctx.beginPath(); ctx.moveTo(QRX+QRBOXW/2-20,qrY+qrSize+8);
+  ctx.lineTo(QRX+QRBOXW/2+20,qrY+qrSize+8); ctx.stroke();
+  ctx.globalAlpha=1;
+  /* label */
+  ctx.font=F.label(8); ctx.fillStyle=G.gold; ctx.textAlign="center";
+  ctx.fillText("SCAN TO ORDER ONLINE", QRX+QRBOXW/2, qrY+qrSize+14);
+  ctx.font=F.item(7); ctx.fillStyle=G.white; ctx.globalAlpha=0.35;
+  ctx.fillText("hungry-owl-menu.vercel.app", QRX+QRBOXW/2, qrY+qrSize+26);
+  ctx.globalAlpha=1;
+
+  /* bestseller legend */
+  const legY = QRY+QRBOXH+8;
+  ctx.fillStyle=G.gold;
+  ctx.beginPath(); ctx.arc(RX+8,legY+5,3,0,Math.PI*2); ctx.fill();
+  ctx.font=F.item(8); ctx.fillStyle=G.gold; ctx.textAlign="left"; ctx.globalAlpha=0.6;
+  ctx.fillText("Bestsellers marked with dot", RX+16, legY);
+  ctx.globalAlpha=1;
+
+  /* ── GOLD STRIP 2 ── */
+  const GS2 = BY+BODY_H+2;
+  ctx.fillStyle=grad1; ctx.fillRect(0,GS2,CW,GOLD_H);
+
+  /* ── FOOTER ── */
+  const FY = GS2+GOLD_H+4;
+  fillRR(6,FY,CW-12,FOOTER_H-6,6,G.gold);
+  strokeRR(14,FY+5,CW-28,FOOTER_H-16,4,"#151515",2);
+  ctx.font=F.label(9); ctx.fillStyle="#151515"; ctx.textAlign="left";
+  ctx.fillText("GOOD FOOD · GOOD MOOD", 28, FY+17);
+  ctx.textAlign="center";
+  ctx.fillText("🦉  🦉  🦉", CW/2, FY+17);
+  ctx.textAlign="right";
+  ctx.fillText("THE CLOUD CAFÉ", CW-28, FY+17);
+
+  return new Promise(resolve => canvas.toBlob(b=>resolve(b), "image/png"));
+}
+
+async function downloadMenu(){
+  showToast("Generating premium menu…");
   try{
     const blob = await generateFullMenuImageBlob();
-    downloadBlob(blob, "menu.png");
-    showToast("Menu downloaded");
+    downloadBlob(blob, "hungry-owl-menu.png");
+    showToast("Menu downloaded ✅");
   }catch(e){
-    showToast("Couldn't generate the menu image: " + e.message);
+    showToast("Couldn't generate menu: "+e.message);
+    console.error(e);
   }
-});
+}
+document.getElementById("downloadMenuBtn").addEventListener("click", downloadMenu);
+
 
 /* ---------------- MENU EDITOR ---------------- */
 // Default template emojis per category keyword

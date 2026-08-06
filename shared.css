@@ -349,6 +349,17 @@
     -webkit-tap-highlight-color:transparent;
     white-space:nowrap;
   }
+  .fab-download{
+    background:var(--secondary);
+    border-color:var(--dark);
+    color:var(--accent);
+    font-family:'Baloo 2',sans-serif;
+    font-weight:800;
+    font-size:.78rem;
+    padding:10px 16px;
+    border-radius:16px;
+    letter-spacing:.5px;
+  }
   .fab-cart{
     background:var(--secondary);
     border-color:var(--dark);
