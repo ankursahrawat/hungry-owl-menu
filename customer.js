@@ -361,72 +361,75 @@ document.getElementById("sendOrderBtn").addEventListener("click", async () => {
   const hint = document.getElementById("sendOrderHint");
   const items = allItemsFlat();
   const entries = Object.entries(cart).filter(([id]) => items[id]);
-  if(!entries.length) return;
+
+  if (!entries.length) return;
 
   const noteInput = document.getElementById("orderNote");
-  if(!noteInput.value.trim()){
+
+  if (!noteInput.value.trim()) {
     hint.textContent = "⚠️ Please enter your name before sending the order.";
     noteInput.focus();
     noteInput.style.borderColor = "var(--red)";
     return;
   }
+
   noteInput.style.borderColor = "";
 
   btn.disabled = true;
   const originalText = btn.textContent;
-  btn.textContent = "Preparing order…";
+  btn.textContent = "Preparing order...";
   hint.textContent = "";
 
-  try{
-    btn.textContent = "Assigning order number…";
+  try {
+    // Keep order numbering
     const { orderNo } = await api.nextOrderNumber();
     const orderLabel = formatOrderNo(orderNo);
 
-    btn.textContent = "Preparing order…";
-    const blob = await generateOrderImageBlob(orderNo);
-    const preview = document.getElementById("orderCanvasPreview");
-    preview.src = URL.createObjectURL(blob);
-    preview.style.display = "block";
-
     const note = noteInput.value.trim();
-    const captionLines = entries.map(([id,qty]) => `${qty} × ${items[id].name}`);
-    const orderText = `🦉 *Hungry Owl — Order ${orderLabel}*\n📅 ${new Date().toLocaleString()}\n👤 Name: ${note}\n\n${captionLines.join("\n")}\n\n💰 *Total: ${money(cartTotal())}*`;
 
-    // 1) Try server-side WhatsApp API (sends text automatically to shop)
-    btn.textContent = "Sending to WhatsApp…";
-    let serverSent = false;
-    try{
-      const result = await api.sendWhatsApp(orderText);
-      if(result.ok) serverSent = true;
-    }catch(e){ /* fall through */ }
+    const captionLines = entries.map(([id, qty]) => {
+      const item = items[id];
+      return `• ${item.name} × ${qty} = ${money(item.price * qty)}`;
+    });
 
-    // 2) Share image + text via native Web Share API
-    //    On mobile this opens the share sheet — tap WhatsApp to send the photo + text together
-    const imgFile = new File([blob], `order-${orderLabel.replace('#','')}.png`, { type:"image/png" });
-    btn.textContent = "Opening WhatsApp…";
-    try{
-      await navigator.share({ files:[imgFile], title:`Order ${orderLabel}`, text:orderText });
-      hint.textContent = `✅ Order ${orderLabel} — tap WhatsApp in the share sheet to send your order photo.`;
-    }catch(err){
-      if(err.name === "AbortError"){
-        hint.textContent = "Share cancelled — tap Send Order again when ready.";
-        btn.textContent = originalText; btn.disabled = false;
-        return;
-      }
-      // Share not supported or failed — download the image as fallback
-      downloadBlob(blob, `order-${orderLabel.replace('#','')}.png`);
-      hint.textContent = `Order photo downloaded — send it on WhatsApp to complete your order.`;
-    }
+    const orderText =
+`🦉 *Hungry Owl - Order ${orderLabel}*
 
-    cart = {}; renderPublicMenu(); updateCartFab();
-    btn.textContent = originalText; btn.disabled = false;
-  }catch(err){
-    hint.textContent = "Something went wrong generating the order: " + err.message;
+📅 ${new Date().toLocaleString()}
+
+👤 Name: ${note}
+
+🍽️ *Items*
+${captionLines.join("\n")}
+
+💰 *Total: ${money(cartTotal())}`;
+
+    btn.textContent = "Opening WhatsApp...";
+
+    const phone = "919193080069";
+
+    window.open(
+      `https://wa.me/${phone}?text=${encodeURIComponent(orderText)}`,
+      "_blank"
+    );
+
+    hint.textContent = `✅ WhatsApp opened successfully.`;
+
+    cart = {};
+    renderPublicMenu();
+    updateCartFab();
+
+    btn.textContent = originalText;
+    btn.disabled = false;
+
+  } catch (err) {
+    hint.textContent =
+      "Something went wrong generating the order: " + err.message;
+
     btn.textContent = originalText;
     btn.disabled = false;
   }
 });
-
 /* ---------------- INIT ---------------- */
 (async () => {
   await loadBranding();
