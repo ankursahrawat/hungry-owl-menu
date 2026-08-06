@@ -7,7 +7,7 @@ import { methodNotAllowed } from "../lib/api-utils.js";
 // Required env vars (Vercel → Settings → Environment Variables):
 //   WHATSAPP_TOKEN       — permanent access token from Meta Business Suite
 //   WHATSAPP_PHONE_ID    — phone number ID from Meta WhatsApp API dashboard
-//   WHATSAPP_TO          — shop owner WhatsApp number with country code, no + (e.g. 919308006900)
+//   WHATSAPP_TO          — shop owner WhatsApp number with country code, no + (e.g. 9193080069)
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return methodNotAllowed(res, ["POST"]);
