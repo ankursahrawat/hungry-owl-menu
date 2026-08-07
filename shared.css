@@ -295,6 +295,16 @@
     background:var(--dark); color:var(--primary);
     border-color:var(--dark);
   }
+  /* ---------- Out of stock ---------- */
+  .item-row--oos{ opacity:.55; }
+  .item-row--oos .item-name{ text-decoration:line-through; text-decoration-color:var(--red); }
+  .oos-badge{
+    flex:0 0 auto;
+    font-family:'Baloo 2',sans-serif; font-weight:800; font-size:.7rem;
+    color:#fff; background:var(--red);
+    border-radius:999px; padding:5px 12px;
+    white-space:nowrap;
+  }
   /* ---------- Admin item image styles ---------- */
   .admin-item-image-wrap{
     display:flex; flex-direction:column; align-items:center; gap:3px;
@@ -319,6 +329,31 @@
   .template-emoji-btn:hover{ border-color:var(--primary); background:var(--accent); }
   .img-upload-label{ font-size:.75rem; padding:3px 6px; }
   .icon-btn.best-active{ background:var(--accent); border:2px solid var(--dark); border-radius:6px; }
+  .icon-btn.oos-active{ background:var(--red); color:#fff; border:2px solid #6d251f; border-radius:6px; }
+  .admin-item-row--oos{ opacity:.5; }
+  .admin-item-row--oos input{ text-decoration:line-through; }
+  /* ---------- Category icon picker (admin) ---------- */
+  .icon-picker{ flex:0 0 auto; position:relative; }
+  .icon-picker summary{
+    list-style:none; cursor:pointer;
+  }
+  .icon-picker summary::-webkit-details-marker{ display:none; }
+  .icon-picker[open] summary{ border-color:var(--primary); background:var(--accent); }
+  .icon-picker-grid{
+    position:absolute; top:calc(100% + 4px); left:0; z-index:20;
+    display:grid; grid-template-columns:repeat(6,1fr); gap:4px;
+    background:var(--white); border:2px solid var(--ink); border-radius:10px;
+    padding:8px; box-shadow:0 8px 20px rgba(32,26,16,.25);
+    width:200px;
+  }
+  .icon-option-btn{
+    background:none; border:1.5px solid #ddd; border-radius:6px;
+    font-size:1.05rem; cursor:pointer; padding:4px 0; line-height:1;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .icon-option-btn:hover{ border-color:var(--primary); background:var(--accent); }
+  .icon-option-btn.selected{ border-color:var(--dark); background:var(--primary); }
+  .icon-option-auto{ font-weight:800; color:var(--muted-2); }
   #menuArea{ flex:1 1 auto; min-width:0; }
   /* ---------- Floating controls ---------- */
   .fab-row{
