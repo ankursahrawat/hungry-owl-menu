@@ -48,6 +48,14 @@ const api = {
     body: JSON.stringify({ text, imageBase64: imageBase64 || null })
   }),
   getStatus: () => apiFetch("/api/status"),
+  // OMS (Order Management System) — Batch 1: background order recording only.
+  createOrder: (payload) => apiFetch("/api/orders", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  }),
+  getOrders: (pin, orderNo) => apiFetch(
+    `/api/admin/orders?pin=${encodeURIComponent(pin)}${orderNo ? `&orderNo=${encodeURIComponent(orderNo)}` : ""}`
+  ),
 };
 
 function applySiteConfig(cfg){

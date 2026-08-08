@@ -26,6 +26,37 @@
     max-width:360px; margin:60px auto; text-align:center; padding:0 20px;
   }
   .gate-screen h2{ font-family:'Baloo 2',sans-serif; }
+
+  /* ---- OMS: Recent Orders (Batch 1) ---- */
+  .order-card{
+    border:2px solid var(--line-soft); border-radius:12px;
+    margin-bottom:8px; overflow:hidden; background:var(--white);
+  }
+  .order-card summary{ list-style:none; cursor:pointer; }
+  .order-card summary::-webkit-details-marker{ display:none; }
+  .order-card[open]{ border-color:var(--ink); }
+  .order-card-summary{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    padding:10px 12px; font-family:'Baloo 2',sans-serif;
+  }
+  .order-no{ font-weight:800; color:var(--ink); }
+  .order-customer{ flex:1; min-width:80px; font-weight:600; color:var(--muted-2); }
+  .order-total{ font-weight:800; color:var(--ink); }
+  .order-status{
+    font-size:.7rem; font-weight:800; padding:3px 9px; border-radius:999px;
+    text-transform:uppercase; letter-spacing:.5px;
+  }
+  .order-status--new{ background:#FFF3D6; color:#8a5a00; }
+  .order-time{ font-size:.78rem; color:var(--muted); white-space:nowrap; }
+  .order-card-detail{ padding:10px 12px 14px; border-top:1.5px solid var(--line-soft); }
+  .order-detail-item{
+    display:flex; justify-content:space-between; gap:8px;
+    padding:4px 0; font-size:.92rem;
+  }
+  .order-item-cat{ color:var(--muted); font-size:.82rem; }
+  .order-detail-totals{ margin-top:8px; padding-top:8px; border-top:1.5px dashed var(--line-soft); }
+  .order-detail-totals > div{ display:flex; justify-content:space-between; font-size:.88rem; padding:2px 0; color:var(--muted-2); }
+  .order-detail-total-row{ font-weight:800; color:var(--ink) !important; font-size:1rem !important; }
 </style>
 </head>
 <body>
@@ -44,6 +75,15 @@
   </div>
 
   <div class="status-row" id="statusRow"></div>
+
+  <div class="admin-section-card">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+      <div style="font-family:'Baloo 2',sans-serif; font-weight:700; font-size:1.05rem;">📋 Recent Orders</div>
+      <button class="btn btn-secondary btn-small" id="refreshOrdersBtn">↻ Refresh</button>
+    </div>
+    <p class="hint" style="margin-top:0;">Orders placed through the customer menu, newest first. Tap an order to see full details.</p>
+    <div id="ordersList"></div>
+  </div>
 
   <div class="admin-section-card">
     <div style="font-family:'Baloo 2',sans-serif; font-weight:700; font-size:1.05rem; margin-bottom:8px;">📢 Announcement Banner</div>

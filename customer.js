@@ -58,22 +58,19 @@ function allItemsFlat(){
 function renderItemRow(it){
   const qty = cart[it.id] || 0;
   const isBest = bestsellerIds.includes(it.id);
-  const isOOS = !!it.outOfStock;
-  const control = isOOS
-    ? `<span class="oos-badge">Out of stock</span>`
-    : (qty > 0
-        ? `<div class="item-qty-stepper">
-             <button data-cart-act="dec" data-iid="${it.id}">−</button>
-             <span class="qty-num">${qty}</span>
-             <button data-cart-act="inc" data-iid="${it.id}">+</button>
-           </div>`
-        : `<button class="item-add-btn" data-cart-act="inc" data-iid="${it.id}">Add <span>+</span></button>`);
+  const control = qty > 0
+    ? `<div class="item-qty-stepper">
+         <button data-cart-act="dec" data-iid="${it.id}">−</button>
+         <span class="qty-num">${qty}</span>
+         <button data-cart-act="inc" data-iid="${it.id}">+</button>
+       </div>`
+    : `<button class="item-add-btn" data-cart-act="inc" data-iid="${it.id}">Add <span>+</span></button>`;
   const imgHtml = it.image
     ? `<img class="item-thumb" src="${it.image}" alt="${escapeHtml(it.name)}" loading="lazy">`
     : "";
   const bestBadge = isBest ? `<span class="best-badge">⭐ Bestseller</span>` : "";
   return `
-    <div class="item-row${isOOS?' item-row--oos':''}">
+    <div class="item-row">
       ${imgHtml}
       <div class="item-info">
         ${bestBadge}
@@ -163,7 +160,7 @@ function renderCatRail(){
     const target = `section-${sec.id}`;
     const active = prevActive ? target === prevActive : (!hasBest && i === 0);
     return `<button class="cat-rail-btn${active?' active':''}" data-target="${target}">
-              <span class="cat-rail-icon">${sec.icon || pickCategoryIcon(sec.name)}</span>
+              <span class="cat-rail-icon">${pickCategoryIcon(sec.name)}</span>
               <span class="cat-rail-label">${escapeHtml(sec.name)}</span>
             </button>`;
   }).join("");
@@ -416,6 +413,15 @@ ${captionLines.join("\n")}
       "_blank"
     );
 
+    // ---- OMS (Order Management System) — background recording only ----
+    // Fire-and-forget: intentionally NOT awaited. The existing WhatsApp flow
+    // above has already fired by this point and must never be delayed or
+    // blocked by this call. Any failure here (network, Redis, etc.) is only
+    // logged — it can never affect the customer's ordering experience.
+    recordOrderForOMS(orderNo, note, entries, items).catch(err => {
+      console.error("[OMS] order recording failed (customer flow unaffected):", err);
+    });
+
     hint.textContent = `✅ WhatsApp opened successfully.`;
 
     cart = {};
@@ -433,6 +439,51 @@ ${captionLines.join("\n")}
     btn.disabled = false;
   }
 });
+/* ---------------- OMS (Order Management System) — Batch 1 ---------------- */
+// Background-only order recording, added alongside the existing WhatsApp
+// send flow above. This never blocks or gates the customer experience —
+// see the fire-and-forget call site in the sendOrderBtn handler.
+//
+// menu.sections doesn't give category id/name for a given item id directly
+// (allItemsFlat() above only carries the category *name* as `.section`,
+// which existing code already depends on) — so this looks it up separately
+// rather than changing that shared helper.
+function findCategoryForItem(itemId){
+  const sec = menu.sections.find(s => s.items.some(i => i.id === itemId));
+  return sec ? { categoryId: sec.id, categoryName: sec.name } : { categoryId: "", categoryName: "" };
+}
+
+async function recordOrderForOMS(orderNo, customerName, entries, items){
+  const lineItems = entries.map(([id, qty]) => {
+    const it = items[id];
+    const cat = findCategoryForItem(id);
+    return {
+      productId: id,
+      productName: it.name,
+      categoryId: cat.categoryId,
+      categoryName: cat.categoryName,
+      quantity: qty,
+      unitPrice: it.price,
+      totalPrice: it.price * qty,
+    };
+  });
+  // Computed from this snapshot directly (not the live `cart` global) so this
+  // is correct regardless of exactly when the caller clears the cart.
+  const orderTotal = lineItems.reduce((sum, li) => sum + li.totalPrice, 0);
+
+  const payload = {
+    orderNo: formatOrderNo(orderNo),
+    customerName,
+    items: lineItems,
+    subtotal: orderTotal,
+    discount: 0,
+    deliveryCharge: 0,
+    tax: 0,
+    total: orderTotal,
+  };
+  await api.createOrder(payload);
+}
+
 /* ---------------- INIT ---------------- */
 (async () => {
   await loadBranding();

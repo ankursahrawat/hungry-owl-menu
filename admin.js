@@ -77,10 +77,73 @@ function chip(ok, label){
   return `<span class="status-chip ${ok?'ok':'warn'}">${ok?'✅':'⚠️'} ${label} ${ok?'connected':'not configured'}</span>`;
 }
 
+/* ---------------- OMS — Recent Orders (Batch 1: view only, no status workflow) ---------------- */
+function formatOrderTime(ts){
+  const d = new Date(ts);
+  return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+}
+function money2(n){ return "₹" + Number(n).toString(); }
+
+async function loadOrders(){
+  const wrap = document.getElementById("ordersList");
+  if(!wrap) return; // admin.html not updated yet — fail quietly, nothing else depends on this
+  try{
+    const { orders } = await api.getOrders(adminPin);
+    renderOrdersList(orders || []);
+  }catch(e){
+    wrap.innerHTML = `<p class="hint">Couldn't load orders: ${escapeHtml(e.message)}</p>`;
+  }
+}
+
+function renderOrdersList(orders){
+  const wrap = document.getElementById("ordersList");
+  if(!wrap) return;
+  if(!orders.length){
+    wrap.innerHTML = `<p class="hint">No orders yet — they'll show up here as soon as customers check out.</p>`;
+    return;
+  }
+  wrap.innerHTML = orders.map(o => `
+    <details class="order-card">
+      <summary class="order-card-summary">
+        <span class="order-no">${escapeHtml(o.orderNo)}</span>
+        <span class="order-customer">${escapeHtml(o.customerName)}</span>
+        <span class="order-total">${money2(o.total)}</span>
+        <span class="order-status order-status--${o.status.toLowerCase()}">${escapeHtml(o.status)}</span>
+        <span class="order-time">${formatOrderTime(o.createdAt)}</span>
+      </summary>
+      <div class="order-card-detail">
+        <div class="order-detail-items">
+          ${o.items.map(it => `
+            <div class="order-detail-item">
+              <span>${escapeHtml(it.productName)} × ${it.quantity}${it.categoryName ? ` <span class="order-item-cat">(${escapeHtml(it.categoryName)})</span>` : ""}</span>
+              <span>${money2(it.totalPrice)}</span>
+            </div>
+          `).join("")}
+        </div>
+        <div class="order-detail-totals">
+          <div><span>Subtotal</span><span>${money2(o.subtotal)}</span></div>
+          ${o.discount ? `<div><span>Discount</span><span>−${money2(o.discount)}</span></div>` : ""}
+          ${o.deliveryCharge ? `<div><span>Delivery</span><span>${money2(o.deliveryCharge)}</span></div>` : ""}
+          ${o.tax ? `<div><span>Tax</span><span>${money2(o.tax)}</span></div>` : ""}
+          <div class="order-detail-total-row"><span>Total</span><span>${money2(o.total)}</span></div>
+        </div>
+        <p class="hint" style="margin-top:8px;">
+          ${o.isDummy ? "🧪 Dummy order · " : ""}Created ${new Date(o.createdAt).toLocaleString()}
+        </p>
+      </div>
+    </details>
+  `).join("");
+}
+
+const refreshOrdersBtnEl = document.getElementById("refreshOrdersBtn");
+if(refreshOrdersBtnEl){
+  refreshOrdersBtnEl.addEventListener("click", () => loadOrders());
+}
+
 /* ---------------- INIT ---------------- */
 async function initAdminScreen(){
   await renderStatus();
-  await Promise.all([loadAndRenderMenu(), loadAndPopulateBranding()]);
+  await Promise.all([loadAndRenderMenu(), loadAndPopulateBranding(), loadOrders()]);
   renderQR();
 }
 
@@ -551,51 +614,15 @@ function getTemplates(sectionName){
   return ITEM_TEMPLATES.default;
 }
 
-// Same auto-detect list customer.js uses, so the "current" icon shown here
-// matches what customers actually see when a category has no custom icon set.
-const AUTO_CATEGORY_ICONS = [
-  { match: /sandwich|grill|toast/i, icon: "🥪" },
-  { match: /pasta|macroni|macaroni|noodle/i, icon: "🍝" },
-  { match: /maggi/i, icon: "🍜" },
-  { match: /chai|coffee|tea|beverage|drink|shake|juice/i, icon: "☕" },
-  { match: /bun|bread|pastry|bakery/i, icon: "🥐" },
-  { match: /roll|wrap/i, icon: "🌯" },
-  { match: /pizza/i, icon: "🍕" },
-  { match: /burger/i, icon: "🍔" },
-  { match: /rice|biryani/i, icon: "🍚" },
-  { match: /dessert|sweet|ice ?cream/i, icon: "🍨" },
-  { match: /soup/i, icon: "🥣" },
-  { match: /egg/i, icon: "🍳" },
-];
-function autoCategoryIcon(name){
-  const hit = AUTO_CATEGORY_ICONS.find(c => c.match.test(name));
-  return hit ? hit.icon : "🍽️";
-}
-
-// Icon choices offered in the category icon picker
-const CATEGORY_ICON_OPTIONS = [
-  "🥪","🍝","🍜","☕","🥐","🌯","🍕","🍔","🍚","🍨",
-  "🥣","🍳","🍟","🥗","🧁","🍦","🥤","🧋","🍩","🥧",
-  "🍰","🥙","🌮","🍱","🍛","🍹","🥛","🍮","🍫","🍿",
-];
-
 function renderAdmin(){
   const wrap = document.getElementById("adminSections");
   const bestSet = new Set(window.__bestsellerIds || []);
   wrap.innerHTML = menu.sections.map((sec, sIdx) => {
     const templates = getTemplates(sec.name);
-    const currentIcon = sec.icon || autoCategoryIcon(sec.name);
     return `
     <div class="admin-section-card" data-section="${sec.id}">
       <div class="admin-section-head">
         <span class="drag-handle drag-handle-section" title="Drag to reorder category">⠿</span>
-        <details class="icon-picker">
-          <summary class="icon-btn ghost" title="Change category icon">${currentIcon}</summary>
-          <div class="icon-picker-grid">
-            <button class="icon-option-btn icon-option-auto${!sec.icon?' selected':''}" data-act="sec-icon" data-sid="${sec.id}" data-icon="" title="Auto-detect from name">↻</button>
-            ${CATEGORY_ICON_OPTIONS.map(ic => `<button class="icon-option-btn${sec.icon===ic?' selected':''}" data-act="sec-icon" data-sid="${sec.id}" data-icon="${ic}">${ic}</button>`).join("")}
-          </div>
-        </details>
         <button class="icon-btn ghost" data-act="sec-up" data-sid="${sec.id}" ${sIdx===0?'disabled':''}>↑</button>
         <button class="icon-btn ghost" data-act="sec-down" data-sid="${sec.id}" ${sIdx===menu.sections.length-1?'disabled':''}>↓</button>
         <input type="text" value="${escapeHtml(sec.name)}" data-act="sec-name" data-sid="${sec.id}" placeholder="Section name">
@@ -604,12 +631,11 @@ function renderAdmin(){
       <div class="admin-items-list" data-items-of="${sec.id}">
       ${sec.items.map((it, iIdx) => {
         const isBest = bestSet.has(it.id);
-        const isOOS = !!it.outOfStock;
         const thumb = it.image
           ? `<img class="admin-item-thumb" src="${it.image}" alt="">`
           : `<div class="admin-item-thumb admin-item-thumb--empty">📷</div>`;
         return `
-        <div class="admin-item-row${isOOS?' admin-item-row--oos':''}" data-item="${it.id}">
+        <div class="admin-item-row" data-item="${it.id}">
           <span class="drag-handle drag-handle-item" title="Drag to reorder item">⠿</span>
           <button class="icon-btn ghost" data-act="item-up" data-sid="${sec.id}" data-iid="${it.id}" ${iIdx===0?'disabled':''}>↑</button>
           <button class="icon-btn ghost" data-act="item-down" data-sid="${sec.id}" data-iid="${it.id}" ${iIdx===sec.items.length-1?'disabled':''}>↓</button>
@@ -621,7 +647,6 @@ function renderAdmin(){
           </div>
           <input type="text" value="${escapeHtml(it.name)}" data-act="item-name" data-sid="${sec.id}" data-iid="${it.id}" placeholder="Item name">
           <input type="number" value="${it.price}" min="0" data-act="item-price" data-sid="${sec.id}" data-iid="${it.id}" placeholder="₹">
-          <button class="icon-btn${isOOS?' oos-active':''}" data-act="item-oos" data-sid="${sec.id}" data-iid="${it.id}" title="${isOOS?'Mark back in stock':'Mark out of stock'}">🚫</button>
           <button class="icon-btn${isBest?' best-active':''}" data-act="item-best" data-sid="${sec.id}" data-iid="${it.id}" title="${isBest?'Remove bestseller':'Mark as bestseller'}">⭐</button>
           <button class="icon-btn danger" data-act="item-del" data-sid="${sec.id}" data-iid="${it.id}" title="Remove item">✕</button>
         </div>
@@ -758,12 +783,6 @@ document.getElementById("adminSections").addEventListener("click", async (e) => 
     const idx = sec.items.findIndex(i => i.id === iid);
     const swap = act === "item-up" ? idx-1 : idx+1;
     [sec.items[idx], sec.items[swap]] = [sec.items[swap], sec.items[idx]];
-  } else if(act === "sec-icon"){
-    findSection(sid).icon = btn.dataset.icon; // "" means auto-detect
-  } else if(act === "item-oos"){
-    const it = findItem(sid, iid);
-    it.outOfStock = !it.outOfStock;
-    showToast(it.outOfStock ? "Marked out of stock" : "Marked back in stock");
   } else if(act === "item-best"){
     // toggle bestseller
     const ids = window.__bestsellerIds || [];
