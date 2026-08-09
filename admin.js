@@ -77,38 +77,76 @@ function chip(ok, label){
   return `<span class="status-chip ${ok?'ok':'warn'}">${ok?'✅':'⚠️'} ${label} ${ok?'connected':'not configured'}</span>`;
 }
 
-/* ---------------- OMS — Recent Orders (Batch 1: view only, no status workflow) ---------------- */
+/* ---------------- OMS — Recent Orders (Batch 2: search, filters, status, dummy) ---------------- */
 function formatOrderTime(ts){
   const d = new Date(ts);
   return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 }
 function money2(n){ return "₹" + Number(n).toString(); }
 
+let allOrders = [];             // full fetched set — search/filter applied client-side over this
+let orderStatusFilter = "all";  // all | NEW | DELIVERED | CANCELLED | DUMMY
+let orderDateFilter = "all";    // all | today | yesterday | week | month
+let orderSearchText = "";
+let openOrderNos = new Set();   // preserves which cards stay expanded across re-renders
+
 async function loadOrders(){
   const wrap = document.getElementById("ordersList");
   if(!wrap) return; // admin.html not updated yet — fail quietly, nothing else depends on this
   try{
     const { orders } = await api.getOrders(adminPin);
-    renderOrdersList(orders || []);
+    allOrders = orders || [];
+    renderOrdersList();
   }catch(e){
     wrap.innerHTML = `<p class="hint">Couldn't load orders: ${escapeHtml(e.message)}</p>`;
   }
 }
 
-function renderOrdersList(orders){
-  const wrap = document.getElementById("ordersList");
-  if(!wrap) return;
-  if(!orders.length){
-    wrap.innerHTML = `<p class="hint">No orders yet — they'll show up here as soon as customers check out.</p>`;
-    return;
+function isSameDay(a, b){
+  return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+}
+// Date filtering is done client-side against each order's existing createdAt
+// timestamp — no Redis restructuring needed, the data's already there.
+function matchesDateFilter(ts){
+  if(orderDateFilter === "all") return true;
+  const d = new Date(ts), now = new Date();
+  if(orderDateFilter === "today") return isSameDay(d, now);
+  if(orderDateFilter === "yesterday"){
+    const y = new Date(now); y.setDate(y.getDate()-1);
+    return isSameDay(d, y);
   }
-  wrap.innerHTML = orders.map(o => `
-    <details class="order-card">
+  if(orderDateFilter === "week"){
+    const weekAgo = new Date(now); weekAgo.setDate(weekAgo.getDate()-7);
+    return d >= weekAgo && d <= now;
+  }
+  if(orderDateFilter === "month"){
+    return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
+  }
+  return true;
+}
+
+function getFilteredOrders(){
+  const q = orderSearchText.trim().toLowerCase();
+  return allOrders.filter(o => {
+    if(orderStatusFilter === "DUMMY" && !o.isDummy) return false;
+    if(orderStatusFilter !== "all" && orderStatusFilter !== "DUMMY" && o.status !== orderStatusFilter) return false;
+    if(!matchesDateFilter(o.createdAt)) return false;
+    if(q && !((o.orderNo + " " + o.customerName).toLowerCase().includes(q))) return false;
+    return true;
+  });
+}
+
+function renderOrderCard(o){
+  const canAct = o.status === "NEW";
+  const isOpen = openOrderNos.has(o.orderNo);
+  return `
+    <details class="order-card" data-order-no="${escapeHtml(o.orderNo)}"${isOpen ? " open" : ""}>
       <summary class="order-card-summary">
         <span class="order-no">${escapeHtml(o.orderNo)}</span>
         <span class="order-customer">${escapeHtml(o.customerName)}</span>
         <span class="order-total">${money2(o.total)}</span>
         <span class="order-status order-status--${o.status.toLowerCase()}">${escapeHtml(o.status)}</span>
+        ${o.isDummy ? `<span class="order-status order-status--dummy">DUMMY</span>` : ""}
         <span class="order-time">${formatOrderTime(o.createdAt)}</span>
       </summary>
       <div class="order-card-detail">
@@ -128,16 +166,123 @@ function renderOrdersList(orders){
           <div class="order-detail-total-row"><span>Total</span><span>${money2(o.total)}</span></div>
         </div>
         <p class="hint" style="margin-top:8px;">
-          ${o.isDummy ? "🧪 Dummy order · " : ""}Created ${new Date(o.createdAt).toLocaleString()}
+          Dummy: ${o.isDummy ? "Yes" : "No"} · Created ${new Date(o.createdAt).toLocaleString()}
         </p>
+        <div class="order-actions">
+          ${canAct ? `
+            <button class="btn btn-small" data-order-act="deliver" data-order-no="${escapeHtml(o.orderNo)}">✅ Mark Delivered</button>
+            <button class="btn btn-small btn-danger" data-order-act="cancel" data-order-no="${escapeHtml(o.orderNo)}">✕ Cancel Order</button>
+          ` : ""}
+          ${o.isDummy
+            ? `<button class="btn btn-small btn-secondary" data-order-act="undummy" data-order-no="${escapeHtml(o.orderNo)}">↩ Restore as Real Order</button>`
+            : `<button class="btn btn-small btn-secondary" data-order-act="dummy" data-order-no="${escapeHtml(o.orderNo)}">🧪 Mark as Dummy</button>`
+          }
+        </div>
       </div>
     </details>
-  `).join("");
+  `;
+}
+
+function renderOrdersList(){
+  const wrap = document.getElementById("ordersList");
+  if(!wrap) return;
+  if(!allOrders.length){
+    wrap.innerHTML = `<p class="hint">No orders yet — they'll show up here as soon as customers check out.</p>`;
+    return;
+  }
+  const orders = getFilteredOrders();
+  if(!orders.length){
+    wrap.innerHTML = `<p class="hint">No orders match your search/filter.</p>`;
+    return;
+  }
+  wrap.innerHTML = orders.map(o => renderOrderCard(o)).join("");
 }
 
 const refreshOrdersBtnEl = document.getElementById("refreshOrdersBtn");
 if(refreshOrdersBtnEl){
   refreshOrdersBtnEl.addEventListener("click", () => loadOrders());
+}
+
+const ordersListEl = document.getElementById("ordersList");
+if(ordersListEl){
+  // 'toggle' doesn't bubble, but capture-phase listeners still see it on the way down.
+  ordersListEl.addEventListener("toggle", (e) => {
+    const details = e.target.closest(".order-card");
+    if(!details) return;
+    const no = details.dataset.orderNo;
+    if(details.open) openOrderNos.add(no); else openOrderNos.delete(no);
+  }, true);
+
+  ordersListEl.addEventListener("click", async (e) => {
+    const btn = e.target.closest("[data-order-act]");
+    if(!btn) return;
+    const act = btn.dataset.orderAct;
+    const orderNo = btn.dataset.orderNo;
+
+    if(act === "deliver"){
+      btn.disabled = true;
+      try{
+        await api.updateOrder(adminPin, orderNo, { status: "DELIVERED" });
+        await loadOrders();
+        showToast(`${orderNo} marked delivered`);
+      }catch(err){ showToast("Couldn't update: " + err.message); btn.disabled = false; }
+
+    }else if(act === "cancel"){
+      if(!confirm(`Cancel Order?\nAre you sure you want to cancel ${orderNo}?`)) return;
+      btn.disabled = true;
+      try{
+        await api.updateOrder(adminPin, orderNo, { status: "CANCELLED" });
+        await loadOrders();
+        showToast(`${orderNo} cancelled`);
+      }catch(err){ showToast("Couldn't cancel: " + err.message); btn.disabled = false; }
+
+    }else if(act === "dummy"){
+      if(!confirm("Mark this order as Dummy?\nDummy orders will not be included in sales or business analytics.")) return;
+      btn.disabled = true;
+      try{
+        await api.updateOrder(adminPin, orderNo, { isDummy: true });
+        await loadOrders();
+        showToast(`${orderNo} marked as dummy`);
+      }catch(err){ showToast("Couldn't update: " + err.message); btn.disabled = false; }
+
+    }else if(act === "undummy"){
+      if(!confirm("Restore this order as a real order?")) return;
+      btn.disabled = true;
+      try{
+        await api.updateOrder(adminPin, orderNo, { isDummy: false });
+        await loadOrders();
+        showToast(`${orderNo} restored as real order`);
+      }catch(err){ showToast("Couldn't update: " + err.message); btn.disabled = false; }
+    }
+  });
+}
+
+const orderSearchInputEl = document.getElementById("orderSearchInput");
+if(orderSearchInputEl){
+  orderSearchInputEl.addEventListener("input", (e) => {
+    orderSearchText = e.target.value;
+    renderOrdersList();
+  });
+}
+
+const orderFilterChipsEl = document.getElementById("orderFilterChips");
+if(orderFilterChipsEl){
+  orderFilterChipsEl.addEventListener("click", (e) => {
+    const chip = e.target.closest(".filter-chip");
+    if(!chip) return;
+    orderFilterChipsEl.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
+    chip.classList.add("active");
+    orderStatusFilter = chip.dataset.filter;
+    renderOrdersList();
+  });
+}
+
+const orderDateFilterEl = document.getElementById("orderDateFilter");
+if(orderDateFilterEl){
+  orderDateFilterEl.addEventListener("change", (e) => {
+    orderDateFilter = e.target.value;
+    renderOrdersList();
+  });
 }
 
 /* ---------------- INIT ---------------- */

@@ -56,6 +56,10 @@ const api = {
   getOrders: (pin, orderNo) => apiFetch(
     `/api/admin/orders?pin=${encodeURIComponent(pin)}${orderNo ? `&orderNo=${encodeURIComponent(orderNo)}` : ""}`
   ),
+  updateOrder: (pin, orderNo, patch) => apiFetch("/api/admin/orders", {
+    method: "PATCH", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ pin, orderNo, ...patch })
+  }),
 };
 
 function applySiteConfig(cfg){

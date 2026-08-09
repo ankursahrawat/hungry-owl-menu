@@ -47,6 +47,9 @@
     text-transform:uppercase; letter-spacing:.5px;
   }
   .order-status--new{ background:#FFF3D6; color:#8a5a00; }
+  .order-status--delivered{ background:#DFF3E3; color:#1e6b32; }
+  .order-status--cancelled{ background:#F8DCDA; color:#8a2e26; }
+  .order-status--dummy{ background:#E4E1F5; color:#4a3d8f; }
   .order-time{ font-size:.78rem; color:var(--muted); white-space:nowrap; }
   .order-card-detail{ padding:10px 12px 14px; border-top:1.5px solid var(--line-soft); }
   .order-detail-item{
@@ -57,6 +60,29 @@
   .order-detail-totals{ margin-top:8px; padding-top:8px; border-top:1.5px dashed var(--line-soft); }
   .order-detail-totals > div{ display:flex; justify-content:space-between; font-size:.88rem; padding:2px 0; color:var(--muted-2); }
   .order-detail-total-row{ font-weight:800; color:var(--ink) !important; font-size:1rem !important; }
+  .order-actions{ display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+  .order-actions .btn{ flex:1 1 auto; min-width:120px; }
+  .order-search-input{
+    width:100%; padding:11px 14px; border-radius:10px; border:2px solid var(--line-soft);
+    font-family:'Baloo 2',sans-serif; font-size:16px; background:var(--white); color:var(--ink);
+    margin-top:4px;
+  }
+  .order-filter-row{
+    display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:space-between;
+    margin-top:10px;
+  }
+  .order-filter-chips{ display:flex; flex-wrap:wrap; gap:6px; }
+  .filter-chip{
+    font-family:'Baloo 2',sans-serif; font-weight:700; font-size:.8rem;
+    padding:6px 12px; border-radius:999px; border:2px solid var(--line-soft);
+    background:var(--white); color:var(--ink); cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .filter-chip.active{ background:var(--ink); color:var(--gold); border-color:var(--ink); }
+  .order-date-select{
+    padding:7px 10px; border-radius:8px; border:2px solid var(--line-soft);
+    font-family:'Baloo 2',sans-serif; font-size:.85rem; background:var(--white); color:var(--ink);
+  }
 </style>
 </head>
 <body>
@@ -82,7 +108,27 @@
       <button class="btn btn-secondary btn-small" id="refreshOrdersBtn">↻ Refresh</button>
     </div>
     <p class="hint" style="margin-top:0;">Orders placed through the customer menu, newest first. Tap an order to see full details.</p>
-    <div id="ordersList"></div>
+
+    <input type="text" id="orderSearchInput" class="order-search-input" placeholder="Search by order # or customer name…">
+
+    <div class="order-filter-row">
+      <div class="order-filter-chips" id="orderFilterChips">
+        <button class="filter-chip active" data-filter="all">All</button>
+        <button class="filter-chip" data-filter="NEW">New</button>
+        <button class="filter-chip" data-filter="DELIVERED">Delivered</button>
+        <button class="filter-chip" data-filter="CANCELLED">Cancelled</button>
+        <button class="filter-chip" data-filter="DUMMY">Dummy</button>
+      </div>
+      <select id="orderDateFilter" class="order-date-select">
+        <option value="all">All dates</option>
+        <option value="today">Today</option>
+        <option value="yesterday">Yesterday</option>
+        <option value="week">This Week</option>
+        <option value="month">This Month</option>
+      </select>
+    </div>
+
+    <div id="ordersList" style="margin-top:12px;"></div>
   </div>
 
   <div class="admin-section-card">
