@@ -285,10 +285,160 @@ if(orderDateFilterEl){
   });
 }
 
+/* ---------------- OMS — Analytics (Batch 3) ---------------- */
+let analyticsRange = "today";
+let analyticsCustomFrom = "";
+let analyticsCustomTo = "";
+let analyticsData = null;
+let itemSortBy = "quantity";     // quantity | revenue
+let categorySortBy = "revenue";  // revenue | quantity
+
+function money3(n){ return "₹" + Math.round(Number(n) || 0).toLocaleString("en-IN"); }
+
+async function loadAnalytics(){
+  const content = document.getElementById("analyticsContent");
+  if(!content) return; // admin.html not updated yet — fail quietly, same pattern as loadOrders
+  content.innerHTML = `<p class="hint">Loading analytics…</p>`;
+  try{
+    const data = await api.getAnalytics(adminPin, analyticsRange, analyticsCustomFrom, analyticsCustomTo);
+    analyticsData = data;
+    renderAnalytics();
+  }catch(e){
+    content.innerHTML = `
+      <p class="hint">Unable to load analytics.</p>
+      <button class="btn btn-small" id="analyticsRetryBtn">Retry</button>
+    `;
+    document.getElementById("analyticsRetryBtn")?.addEventListener("click", loadAnalytics);
+  }
+}
+
+function renderAnalyticsList(rows, detailFn){
+  return `<div class="analytics-list">${rows.map(r => `
+    <div class="analytics-list-row">
+      <span class="analytics-list-name">${escapeHtml(r.name)}</span>
+      <span class="analytics-list-detail">${escapeHtml(r.detail)}</span>
+      <span class="analytics-list-value">${money3(r.value)}</span>
+    </div>
+  `).join("")}</div>`;
+}
+
+function renderAnalytics(){
+  const content = document.getElementById("analyticsContent");
+  if(!content || !analyticsData) return;
+  const d = analyticsData;
+
+  const summaryHtml = `
+    <div class="analytics-summary-row">
+      <div class="analytics-stat"><div class="analytics-stat-label">Sales</div><div class="analytics-stat-value">${money3(d.sales)}</div></div>
+      <div class="analytics-stat"><div class="analytics-stat-label">Orders</div><div class="analytics-stat-value">${d.orders}</div></div>
+      <div class="analytics-stat"><div class="analytics-stat-label">Avg Order</div><div class="analytics-stat-value">${money3(d.averageOrderValue)}</div></div>
+    </div>
+  `;
+
+  if(d.orders === 0){
+    content.innerHTML = summaryHtml + `<p class="hint" style="margin-top:12px;">No completed sales for this period.</p>`;
+    return;
+  }
+
+  let breakdownHtml = "";
+  if(d.breakdown.length > 1){ // a single bucket (e.g. "today") isn't a useful trend to chart
+    const maxSales = Math.max(...d.breakdown.map(b => b.sales), 1);
+    breakdownHtml = `
+      <div class="analytics-section-title">Sales Trend</div>
+      <div class="analytics-chart">
+        ${d.breakdown.map(b => `
+          <div class="analytics-bar-row">
+            <span class="analytics-bar-label">${escapeHtml(b.label)}</span>
+            <div class="analytics-bar-track"><div class="analytics-bar-fill" style="width:${Math.max(4, b.sales / maxSales * 100)}%"></div></div>
+            <span class="analytics-bar-value">${money3(b.sales)}</span>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  let itemsHtml = "";
+  if(d.items.length){
+    const topItems = [...d.items]
+      .sort((a, b) => itemSortBy === "quantity" ? b.quantitySold - a.quantitySold : b.revenue - a.revenue)
+      .slice(0, 10);
+    itemsHtml = `
+      <div class="analytics-section-title-row">
+        <div class="analytics-section-title">Top Items</div>
+        <div class="analytics-sort-chips">
+          <button class="filter-chip${itemSortBy==='quantity'?' active':''}" data-item-sort="quantity">By Quantity</button>
+          <button class="filter-chip${itemSortBy==='revenue'?' active':''}" data-item-sort="revenue">By Revenue</button>
+        </div>
+      </div>
+      ${renderAnalyticsList(topItems.map(it => ({ name: it.itemName, detail: `${it.quantitySold} sold`, value: it.revenue })))}
+    `;
+
+    // Lowest sellers: only ranked among items that actually sold at least
+    // once in this period (items with zero sales simply don't appear in
+    // d.items at all — see lib/analytics.js), so a brand-new item never
+    // gets unfairly flagged just for having "only 1 sale so far".
+    const lowest = [...d.items].sort((a, b) => a.quantitySold - b.quantitySold).slice(0, 5);
+    itemsHtml += `
+      <div class="analytics-section-title">Lowest Selling Items</div>
+      ${renderAnalyticsList(lowest.map(it => ({ name: it.itemName, detail: `${it.quantitySold} sold`, value: it.revenue })))}
+    `;
+  }
+
+  let catsHtml = "";
+  if(d.categories.length){
+    const topCats = [...d.categories]
+      .sort((a, b) => categorySortBy === "quantity" ? b.quantitySold - a.quantitySold : b.revenue - a.revenue);
+    catsHtml = `
+      <div class="analytics-section-title-row">
+        <div class="analytics-section-title">Categories</div>
+        <div class="analytics-sort-chips">
+          <button class="filter-chip${categorySortBy==='revenue'?' active':''}" data-cat-sort="revenue">By Revenue</button>
+          <button class="filter-chip${categorySortBy==='quantity'?' active':''}" data-cat-sort="quantity">By Quantity</button>
+        </div>
+      </div>
+      ${renderAnalyticsList(topCats.map(c => ({ name: c.categoryName || "Uncategorized", detail: `${c.quantitySold} items`, value: c.revenue })))}
+    `;
+  }
+
+  content.innerHTML = summaryHtml + breakdownHtml + itemsHtml + catsHtml;
+
+  content.querySelectorAll("[data-item-sort]").forEach(btn => {
+    btn.addEventListener("click", () => { itemSortBy = btn.dataset.itemSort; renderAnalytics(); });
+  });
+  content.querySelectorAll("[data-cat-sort]").forEach(btn => {
+    btn.addEventListener("click", () => { categorySortBy = btn.dataset.catSort; renderAnalytics(); });
+  });
+}
+
+const analyticsRangeSelectEl = document.getElementById("analyticsRangeSelect");
+if(analyticsRangeSelectEl){
+  analyticsRangeSelectEl.addEventListener("change", (e) => {
+    analyticsRange = e.target.value;
+    const customRow = document.getElementById("analyticsCustomRange");
+    if(analyticsRange === "custom"){
+      if(customRow) customRow.style.display = "flex";
+    }else{
+      if(customRow) customRow.style.display = "none";
+      loadAnalytics();
+    }
+  });
+}
+const analyticsApplyBtnEl = document.getElementById("analyticsApplyBtn");
+if(analyticsApplyBtnEl){
+  analyticsApplyBtnEl.addEventListener("click", () => {
+    const from = document.getElementById("analyticsFromDate")?.value;
+    const to = document.getElementById("analyticsToDate")?.value;
+    if(!from || !to){ showToast("Pick both From and To dates"); return; }
+    analyticsCustomFrom = from;
+    analyticsCustomTo = to;
+    loadAnalytics();
+  });
+}
+
 /* ---------------- INIT ---------------- */
 async function initAdminScreen(){
   await renderStatus();
-  await Promise.all([loadAndRenderMenu(), loadAndPopulateBranding(), loadOrders()]);
+  await Promise.all([loadAndRenderMenu(), loadAndPopulateBranding(), loadOrders(), loadAnalytics()]);
   renderQR();
 }
 

@@ -60,6 +60,13 @@ const api = {
     method: "PATCH", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ pin, orderNo, ...patch })
   }),
+  getAnalytics: (pin, range, from, to) => {
+    let url = `/api/admin/analytics?pin=${encodeURIComponent(pin)}&range=${encodeURIComponent(range)}`;
+    if(range === "custom"){
+      url += `&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
+    }
+    return apiFetch(url);
+  },
 };
 
 function applySiteConfig(cfg){

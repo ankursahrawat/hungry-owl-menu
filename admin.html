@@ -83,6 +83,47 @@
     padding:7px 10px; border-radius:8px; border:2px solid var(--line-soft);
     font-family:'Baloo 2',sans-serif; font-size:.85rem; background:var(--white); color:var(--ink);
   }
+
+  /* ---- OMS: Analytics (Batch 3) ---- */
+  .analytics-custom-range{
+    display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:10px;
+  }
+  .analytics-custom-range input[type=date]{
+    flex:1 1 120px; padding:9px 10px; border-radius:8px; border:2px solid var(--line-soft);
+    font-family:'Baloo 2',sans-serif; font-size:14px; color:var(--ink); background:var(--white);
+  }
+  .analytics-summary-row{ display:flex; gap:8px; }
+  .analytics-stat{
+    flex:1; text-align:center; background:var(--cream-2, #f5f0dd); border:2px solid var(--line-soft);
+    border-radius:12px; padding:12px 6px;
+  }
+  .analytics-stat-label{ font-size:.72rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; }
+  .analytics-stat-value{ font-family:'Baloo 2',sans-serif; font-weight:800; font-size:1.25rem; color:var(--ink); margin-top:2px; }
+  .analytics-section-title{
+    font-family:'Baloo 2',sans-serif; font-weight:800; font-size:.92rem; color:var(--ink);
+    margin-top:18px; margin-bottom:8px;
+  }
+  .analytics-section-title-row{
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;
+    margin-top:18px; margin-bottom:8px;
+  }
+  .analytics-section-title-row .analytics-section-title{ margin:0; }
+  .analytics-sort-chips{ display:flex; gap:6px; }
+  .analytics-chart{ display:flex; flex-direction:column; gap:6px; }
+  .analytics-bar-row{ display:flex; align-items:center; gap:8px; }
+  .analytics-bar-label{ flex:0 0 64px; font-size:.75rem; color:var(--muted-2); font-weight:700; }
+  .analytics-bar-track{ flex:1; height:14px; background:var(--cream-2, #f5f0dd); border-radius:999px; overflow:hidden; }
+  .analytics-bar-fill{ height:100%; background:var(--gold); border-radius:999px; }
+  .analytics-bar-value{ flex:0 0 auto; font-size:.75rem; font-weight:800; color:var(--ink); min-width:56px; text-align:right; }
+  .analytics-list{ display:flex; flex-direction:column; gap:2px; }
+  .analytics-list-row{
+    display:flex; align-items:center; gap:8px; padding:7px 0;
+    border-bottom:1px solid var(--line-soft);
+  }
+  .analytics-list-row:last-child{ border-bottom:none; }
+  .analytics-list-name{ flex:1; font-weight:700; font-size:.88rem; color:var(--ink); min-width:0; }
+  .analytics-list-detail{ font-size:.78rem; color:var(--muted); white-space:nowrap; }
+  .analytics-list-value{ font-weight:800; font-size:.9rem; color:var(--ink); white-space:nowrap; }
 </style>
 </head>
 <body>
@@ -129,6 +170,29 @@
     </div>
 
     <div id="ordersList" style="margin-top:12px;"></div>
+  </div>
+
+  <div class="admin-section-card">
+    <div style="font-family:'Baloo 2',sans-serif; font-weight:700; font-size:1.05rem; margin-bottom:8px;">📊 Analytics</div>
+    <p class="hint" style="margin-top:0;">Based on delivered, non-dummy orders only.</p>
+
+    <select id="analyticsRangeSelect" class="order-date-select" style="width:100%; padding:10px; font-size:16px;">
+      <option value="today">Today</option>
+      <option value="yesterday">Yesterday</option>
+      <option value="week">This Week</option>
+      <option value="month">This Month</option>
+      <option value="quarter">This Quarter</option>
+      <option value="year">This Year</option>
+      <option value="custom">Custom Range</option>
+    </select>
+
+    <div id="analyticsCustomRange" class="analytics-custom-range" style="display:none;">
+      <input type="date" id="analyticsFromDate">
+      <input type="date" id="analyticsToDate">
+      <button class="btn btn-small" id="analyticsApplyBtn">Apply</button>
+    </div>
+
+    <div id="analyticsContent" style="margin-top:14px;"></div>
   </div>
 
   <div class="admin-section-card">
