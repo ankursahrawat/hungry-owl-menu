@@ -19,10 +19,9 @@
 
 import { redis, missingRedisConfig } from "../../lib/redis.js";
 import { methodNotAllowed, requireAdmin } from "../../lib/api-utils.js";
+import { getAllOrders } from "../../lib/orders-store.js";
 
-const INDEX_KEY = "orders:index";
-const MAX_KEPT  = 1000;
-const orderKey  = (orderNo) => `order:${orderNo}`;
+const orderKey = (orderNo) => `order:${orderNo}`;
 
 const ALLOWED_STATUSES    = new Set(["NEW", "DELIVERED", "CANCELLED"]);
 const ALLOWED_TRANSITIONS = { NEW: new Set(["DELIVERED", "CANCELLED"]) };
@@ -57,14 +56,7 @@ async function handleGet(req, res) {
   }
 
   // ---- recent orders list, newest first ----
-  const orderNos = await redis.lrange(INDEX_KEY, 0, MAX_KEPT - 1);
-  if (!orderNos.length) return res.status(200).json({ orders: [] });
-
-  const raw = await redis.mget(...orderNos.map(orderKey));
-  const orders = raw
-    .map(r => (r ? (typeof r === "string" ? JSON.parse(r) : r) : null))
-    .filter(Boolean);
-
+  const orders = await getAllOrders();
   return res.status(200).json({ orders });
 }
 
