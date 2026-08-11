@@ -9,10 +9,18 @@
 // for GET; PATCH uses the same body-based requireAdmin() helper as the rest
 // of the project's mutating endpoints (site-config.js, order-number.js).
 //
-// Batch 2 status rules (intentionally simple — see OMS Batch 2 spec):
-//   Allowed statuses: NEW, DELIVERED, CANCELLED
-//   Allowed transitions: NEW -> DELIVERED, NEW -> CANCELLED
-//   Anything else (including DELIVERED/CANCELLED -> anything) is rejected.
+// Batch 2 status rules (see OMS Batch 2 spec), extended in Batch 4 to
+// recognize the new staff-workflow statuses (PREPARING, READY) that
+// api/staff/orders.js can now set:
+//   Full status enum: NEW, PREPARING, READY, DELIVERED, CANCELLED
+//   Admin transitions: from NEW/PREPARING/READY -> DELIVERED or CANCELLED
+//     (Admin can always override straight to Delivered/Cancelled from any
+//     active state — Batch 4 explicitly requires this stays available even
+//     though Staff itself must follow the strict linear workflow.)
+//   Admin can NOT set PREPARING or READY here — those are Staff-only
+//   (see api/staff/orders.js), enforced simply by never including them as
+//   a valid target in this transition map.
+//   Anything from DELIVERED/CANCELLED is rejected, same as Batch 2.
 //   isDummy is an independent boolean flag, not a status — it can be toggled
 //   regardless of the order's current status, in either direction.
 //   Cancelling / marking dummy NEVER deletes the order record.
@@ -23,8 +31,12 @@ import { getAllOrders } from "../../lib/orders-store.js";
 
 const orderKey = (orderNo) => `order:${orderNo}`;
 
-const ALLOWED_STATUSES    = new Set(["NEW", "DELIVERED", "CANCELLED"]);
-const ALLOWED_TRANSITIONS = { NEW: new Set(["DELIVERED", "CANCELLED"]) };
+const ALLOWED_STATUSES    = new Set(["NEW", "PREPARING", "READY", "DELIVERED", "CANCELLED"]);
+const ALLOWED_TRANSITIONS = {
+  NEW:       new Set(["DELIVERED", "CANCELLED"]),
+  PREPARING: new Set(["DELIVERED", "CANCELLED"]),
+  READY:     new Set(["DELIVERED", "CANCELLED"]),
+};
 
 export default async function handler(req, res) {
   if (req.method === "GET") return handleGet(req, res);
