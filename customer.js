@@ -58,19 +58,22 @@ function allItemsFlat(){
 function renderItemRow(it){
   const qty = cart[it.id] || 0;
   const isBest = bestsellerIds.includes(it.id);
-  const control = qty > 0
-    ? `<div class="item-qty-stepper">
-         <button data-cart-act="dec" data-iid="${it.id}">−</button>
-         <span class="qty-num">${qty}</span>
-         <button data-cart-act="inc" data-iid="${it.id}">+</button>
-       </div>`
-    : `<button class="item-add-btn" data-cart-act="inc" data-iid="${it.id}">Add <span>+</span></button>`;
+  const isOOS = !!it.outOfStock;
+  const control = isOOS
+    ? `<span class="oos-badge">Out of stock</span>`
+    : (qty > 0
+        ? `<div class="item-qty-stepper">
+             <button data-cart-act="dec" data-iid="${it.id}">−</button>
+             <span class="qty-num">${qty}</span>
+             <button data-cart-act="inc" data-iid="${it.id}">+</button>
+           </div>`
+        : `<button class="item-add-btn" data-cart-act="inc" data-iid="${it.id}">Add <span>+</span></button>`);
   const imgHtml = it.image
     ? `<img class="item-thumb" src="${it.image}" alt="${escapeHtml(it.name)}" loading="lazy">`
     : "";
   const bestBadge = isBest ? `<span class="best-badge">⭐ Bestseller</span>` : "";
   return `
-    <div class="item-row">
+    <div class="item-row${isOOS?' item-row--oos':''}">
       ${imgHtml}
       <div class="item-info">
         ${bestBadge}
@@ -160,7 +163,7 @@ function renderCatRail(){
     const target = `section-${sec.id}`;
     const active = prevActive ? target === prevActive : (!hasBest && i === 0);
     return `<button class="cat-rail-btn${active?' active':''}" data-target="${target}">
-              <span class="cat-rail-icon">${pickCategoryIcon(sec.name)}</span>
+              <span class="cat-rail-icon">${sec.icon || pickCategoryIcon(sec.name)}</span>
               <span class="cat-rail-label">${escapeHtml(sec.name)}</span>
             </button>`;
   }).join("");

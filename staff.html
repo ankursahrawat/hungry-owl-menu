@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Hungry Owl — Staff Orders</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared.css">
+<link rel="icon" type="image/svg+xml" href="/hungry-owl-logo.svg">
+<style>
+  body{ background:var(--cream); }
+  .staff-page-wrap{ max-width:520px; margin:0 auto; padding:16px 14px 60px; }
+  .gate-screen{ max-width:360px; margin:60px auto; text-align:center; padding:0 20px; }
+  .gate-screen h2{ font-family:'Baloo 2',sans-serif; }
+
+  .staff-header{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    margin-bottom:8px;
+  }
+  .staff-header h1{ font-family:'Baloo 2',sans-serif; font-size:1.3rem; margin:0; }
+  .staff-subline{
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;
+    font-size:.78rem; color:var(--muted); margin-bottom:14px;
+  }
+  .staff-conn-dot{ display:inline-block; width:8px; height:8px; border-radius:50%; background:#3d8b3d; margin-right:4px; }
+  .staff-conn-dot.offline{ background:var(--red); }
+
+  .alert-enable-btn{
+    display:block; width:100%; padding:12px; margin-bottom:14px;
+    background:var(--gold); border:2.5px solid var(--ink); border-radius:12px;
+    font-family:'Baloo 2',sans-serif; font-weight:800; font-size:.95rem; color:var(--ink);
+    cursor:pointer;
+  }
+  .alert-enable-btn.enabled{ background:#DFF3E3; border-color:#2A5C2A; color:#1e6b32; }
+
+  .staff-group-title{
+    font-family:'Baloo 2',sans-serif; font-weight:800; font-size:.85rem;
+    letter-spacing:1px; text-transform:uppercase; margin:18px 0 8px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .staff-group-title.new-group{ color:#8a5a00; }
+  .staff-group-title.preparing-group{ color:#1a5490; }
+  .staff-group-title.ready-group{ color:#3d6b1e; }
+
+  .staff-order-card{
+    border:2.5px solid var(--ink); border-radius:14px; padding:14px;
+    margin-bottom:12px; background:var(--white);
+  }
+  .staff-order-card.is-new{ border-color:#c98a00; background:#FFFBF0; }
+  .staff-order-card.is-preparing{ border-color:#1a5490; background:#F3F8FE; }
+  .staff-order-card.is-ready{ border-color:#3d6b1e; background:#F4FAF1; }
+
+  .staff-order-top{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .staff-order-no{ font-family:'Baloo 2',sans-serif; font-weight:800; font-size:1.15rem; color:var(--ink); }
+  .staff-order-age{ font-size:.78rem; font-weight:700; color:var(--muted); white-space:nowrap; }
+  .staff-order-customer{ font-size:.88rem; font-weight:700; color:var(--muted-2); margin-top:2px; }
+
+  .staff-order-items{ margin:10px 0; }
+  .staff-order-item-row{ font-size:.95rem; font-weight:600; color:var(--ink); padding:2px 0; }
+
+  .staff-order-total{
+    font-family:'Baloo 2',sans-serif; font-weight:800; font-size:1rem; color:var(--ink);
+    margin-bottom:10px;
+  }
+
+  .staff-action-btn{
+    display:block; width:100%; padding:16px; border-radius:12px; border:none;
+    font-family:'Baloo 2',sans-serif; font-weight:800; font-size:1rem; letter-spacing:.5px;
+    cursor:pointer; color:#fff; -webkit-tap-highlight-color:transparent;
+  }
+  .staff-action-btn:disabled{ opacity:.5; }
+  .staff-action-btn.action-preparing{ background:#c98a00; }
+  .staff-action-btn.action-ready{ background:#1a5490; }
+  .staff-action-btn.action-delivered{ background:#3d6b1e; }
+
+  .staff-empty-note{ text-align:center; color:var(--muted); padding:30px 10px; font-size:.92rem; }
+</style>
+</head>
+<body>
+
+<div id="gateScreen" class="gate-screen">
+  <h2>🔒 Staff Login</h2>
+  <p class="hint">Enter the staff PIN to view active orders.</p>
+  <div class="pin-dots" id="pinDots"></div>
+  <div class="keypad" id="pinKeypad"></div>
+</div>
+
+<div id="staffScreen" class="staff-page-wrap" style="display:none;">
+  <div class="staff-header">
+    <h1>🦉 Hungry Owl — Staff Orders</h1>
+  </div>
+  <div class="staff-subline">
+    <span><span class="staff-conn-dot" id="connDot"></span><span id="connLabel">Connected</span></span>
+    <span id="lastUpdatedLabel">Last updated: —</span>
+  </div>
+
+  <button class="alert-enable-btn" id="alertEnableBtn">🔔 Enable Order Alerts</button>
+
+  <div id="staffOrdersContent"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="/shared.js"></script>
+<script src="/staff.js"></script>
+</body>
+</html>
