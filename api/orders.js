@@ -7,20 +7,17 @@
 // the call here is fire-and-forget so a Redis/API failure can never block
 // or break the existing "Send Order" → WhatsApp behavior).
 //
-// Redis structure:
-//   order:{orderNo}   → JSON string, the full order record (historical snapshot)
-//   orders:index      → Redis list of orderNo values, newest first (LPUSH)
+// Storage is handled by lib/orders-store.js, using only redis.get()/set() —
+// see that file for why (a real bug: lpush/ltrim/exists were never actually
+// verified against the live deployment and turned out to be broken there).
 //
 // orderNo is NOT generated here — it's the same order number the existing
 // /api/order-number endpoint already issued for this order, passed in by
 // the client, so WhatsApp and the OMS always refer to the same order.
 
-import { redis, missingRedisConfig } from "../lib/redis.js";
+import { missingRedisConfig } from "../lib/redis.js";
 import { getJsonBody, methodNotAllowed } from "../lib/api-utils.js";
-
-const INDEX_KEY = "orders:index";
-const MAX_KEPT  = 1000; // operational cap so the index list can't grow forever
-const orderKey  = (orderNo) => `order:${orderNo}`;
+import { getOrder, saveOrder, addToIndex } from "../lib/orders-store.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return methodNotAllowed(res, ["POST"]);
@@ -85,11 +82,10 @@ export default async function handler(req, res) {
   try {
     // If this exact orderNo was already recorded (e.g. a duplicate Send Order
     // click), don't create a second index entry — just overwrite the record.
-    const alreadyExists = await redis.exists(orderKey(order.orderNo));
-    await redis.set(orderKey(order.orderNo), JSON.stringify(order));
-    if (!alreadyExists) {
-      await redis.lpush(INDEX_KEY, order.orderNo);
-      await redis.ltrim(INDEX_KEY, 0, MAX_KEPT - 1);
+    const already = await getOrder(order.orderNo);
+    await saveOrder(order);
+    if (!already) {
+      await addToIndex(order.orderNo);
     }
   } catch (err) {
     // Storage failure — report it, but this is still just an error response;
