@@ -710,7 +710,8 @@ async function generateFullMenuImageBlob(){
   /* corner marks */
   const cm=[[HX+20,HY+20],[HX+HW-20,HY+20],[HX+20,HY+HH-20],[HX+HW-20,HY+HH-20]];
   const cdir=[[1,1],[-1,1],[1,-1],[-1,-1]];
-  cm.forEach(([cx2,cy2],[dx,dy])=>{
+  cm.forEach(([cx2,cy2], i)=>{
+    const [dx,dy] = cdir[i];
     ctx.strokeStyle="#151515"; ctx.lineWidth=2; ctx.beginPath();
     ctx.moveTo(cx2,cy2); ctx.lineTo(cx2+dx*12,cy2);
     ctx.moveTo(cx2,cy2); ctx.lineTo(cx2,cy2+dy*12);
